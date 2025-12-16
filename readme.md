@@ -61,25 +61,6 @@
 
 ### 4. 输出规范
 
-#### 文件结构
-"""
-Demo/
-├── static/                 # 静态资源
-│   ├── css/custom.css     # 自定义样式
-│   ├── js/mock-data.js    # 模拟数据
-│   └── js/interactions.js # 交互逻辑
-├── templates/
-│   ├── layout.html        # 主布局模板
-│   ├── dashboard.html     # 仪表盘
-│   ├── report_form.html   # 填报界面（重点重构）
-│   ├── report_list.html   # 周报列表
-│   ├── report_detail.html # 详情页
-│   ├── templates_manage.html # 模板管理
-│   └── settings.html      # 系统设置
-├── index.html             # 入口页
-└── README.md              # 运行说明文档
-"""
-
 #### 代码质量
 - **Jinja2模板**：模块化设计，合理使用`{% include %}`、`{% macro %}`
 - **模拟数据**：结构化JSON，符合数据库设计规范
