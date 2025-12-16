@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block body %}
+<!-- 顶部导航栏 -->
+<header class="bg-white shadow-sm z-10 relative">
+    <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <!-- 左侧Logo和标题 -->
+            <div class="flex items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <i class="fas fa-file-alt text-primary text-2xl mr-2"></i>
+                    <span class="text-xl font-semibold text-gray-700">周报管理系统</span>
+                </div>
+            </div>
+            <!-- 右侧用户信息 -->
+            <div class="flex items-center">
+                <button class="p-2 rounded-full text-gray-500 hover:bg-gray-100 mr-4 relative">
+                    <i class="fas fa-bell"></i>
+                    <span class="absolute top-1 right-1 bg-danger w-2 h-2 rounded-full"></span>
+                </button>
+                <div class="ml-3 relative">
+                    <div class="flex items-center cursor-pointer group" id="userMenuButton">
+                        <img class="h-8 w-8 rounded-full object-cover" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/18fe4f0759c48e2712356dc844b3b984.png" alt="用户头像">
+                        <div class="ml-2 hidden md:block">
+                            <div class="text-sm font-medium text-gray-700">{{ session.name or '张三' }}</div>
+                            <div class="text-xs text-gray-500">{{ session.role or '项目经理' }}</div>
+                        </div>
+                        <i class="fas fa-chevron-down ml-1 text-xs text-gray-400 group-hover:text-primary transition-colors duration-200"></i>
+                    </div>
+                    <!-- 用户下拉菜单 -->
+                    <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-dropdown bg-white ring-1 ring-black ring-opacity-5 z-50" id="userDropdownMenu">
+                        <div class="py-1">
+                            <a href="javascript:void(0);" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2 text-gray-400"></i>
+                                个人信息
+                            </a>
+                            <a href="javascript:void(0);" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2 text-gray-400"></i>
+                                系统设置
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-sm text-danger hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                退出登录
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- 主内容区域 -->
+<div class="flex flex-1 overflow-hidden">
+    <!-- 侧边栏 -->
+    <aside class="bg-white w-64 border-r border-gray-200 flex-shrink-0 hidden lg:block transition-all duration-300 ease-in-out" id="sidebar">
+        <div class="h-full flex flex-col">
+            <!-- 搜索框 -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="relative">
+                    <input type="text" placeholder="搜索菜单..." class="form-input pl-10 pr-4 py-2 text-sm">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+            <!-- 菜单列表 -->
+            <nav class="flex-1 overflow-y-auto p-2" id="sidebarMenu">
+                <!-- 系统首页 -->
+                <div class="mb-4">
+                    <div class="sidebar-item {% if request.endpoint == 'dashboard' %}sidebar-item-active{% endif %}" data-url="{{ url_for('dashboard') }}">
+                        <i class="fas fa-home w-5 text-center mr-3"></i>
+                        <span>系统首页</span>
+                    </div>
+                </div>
+                <!-- 周报管理 -->
+                <div class="mb-2">
+                    <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        周报管理
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'pending_reports' %}sidebar-item-active{% endif %}" data-url="{{ url_for('pending_reports') }}">
+                        <i class="fas fa-clipboard-list w-5 text-center mr-3"></i>
+                        <span>待我填报</span>
+                        <span class="ml-auto badge badge-danger">5</span>
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'my_reports' %}sidebar-item-active{% endif %}" data-url="{{ url_for('my_reports') }}">
+                        <i class="fas fa-check-circle w-5 text-center mr-3"></i>
+                        <span>我填报的周报</span>
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'pending_review' %}sidebar-item-active{% endif %}" data-url="{{ url_for('pending_review') }}">
+                        <i class="fas fa-user-check w-5 text-center mr-3"></i>
+                        <span>待我审核</span>
+                        <span class="ml-auto badge badge-warning">3</span>
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'view_reports' %}sidebar-item-active{% endif %}" data-url="{{ url_for('view_reports') }}">
+                        <i class="fas fa-file-alt w-5 text-center mr-3"></i>
+                        <span>周报查看</span>
+                    </div>
+                </div>
+                <!-- 模板管理 -->
+                <div class="mb-2">
+                    <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        模板管理
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'templates_list' %}sidebar-item-active{% endif %}" data-url="{{ url_for('templates_list') }}">
+                        <i class="fas fa-th-large w-5 text-center mr-3"></i>
+                        <span>周报模板列表</span>
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'create_template' %}sidebar-item-active{% endif %}" data-url="{{ url_for('create_template') }}">
+                        <i class="fas fa-plus-circle w-5 text-center mr-3"></i>
+                        <span>新增周报模板</span>
+                    </div>
+                </div>
+                <!-- 系统管理 -->
+                <div class="mb-2">
+                    <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        系统管理
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'system_users' %}sidebar-item-active{% endif %}" data-url="{{ url_for('system_users') }}">
+                        <i class="fas fa-users w-5 text-center mr-3"></i>
+                        <span>用户管理</span>
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'system_departments' %}sidebar-item-active{% endif %}" data-url="{{ url_for('system_departments') }}">
+                        <i class="fas fa-sitemap w-5 text-center mr-3"></i>
+                        <span>部门管理</span>
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'system_dictionary' %}sidebar-item-active{% endif %}" data-url="{{ url_for('system_dictionary') }}">
+                        <i class="fas fa-tags w-5 text-center mr-3"></i>
+                        <span>数据字典</span>
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'system_roles' %}sidebar-item-active{% endif %}" data-url="{{ url_for('system_roles') }}">
+                        <i class="fas fa-id-card-alt w-5 text-center mr-3"></i>
+                        <span>角色管理</span>
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'system_menus' %}sidebar-item-active{% endif %}" data-url="{{ url_for('system_menus') }}">
+                        <i class="fas fa-list w-5 text-center mr-3"></i>
+                        <span>菜单管理</span>
+                    </div>
+                </div>
+                <!-- 系统设置 -->
+                <div class="mb-2">
+                    <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        系统设置
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'settings_announcements' %}sidebar-item-active{% endif %}" data-url="{{ url_for('settings_announcements') }}">
+                        <i class="fas fa-bell w-5 text-center mr-3"></i>
+                        <span>系统公告</span>
+                    </div>
+                    <div class="sidebar-item {% if request.endpoint == 'settings_logs' %}sidebar-item-active{% endif %}" data-url="{{ url_for('settings_logs') }}">
+                        <i class="fas fa-history w-5 text-center mr-3"></i>
+                        <span>操作日志</span>
+                    </div>
+                </div>
+            </nav>
+            <!-- 底部 -->
+            <div class="p-4 border-t border-gray-200">
+                <div class="text-center text-xs text-gray-500">
+                    <p>周报管理系统 v1.0.0</p>
+                    <p class="mt-1">© 2023 公司名称</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <!-- 移动端侧边栏切换按钮 -->
+    <div class="lg:hidden fixed bottom-5 right-5 z-40">
+        <button id="mobileSidebarToggle" class="w-12 h-12 rounded-full bg-primary text-white shadow-lg flex items-center justify-center">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <!-- 主内容 -->
+    <main class="flex-1 overflow-y-auto bg-gray-50 p-6" id="mainContent">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script>
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function () {
+    // 初始化用户下拉菜单
+    initUserDropdownMenu();
+    
+    // 初始化侧边栏菜单交互
+    initSidebarMenu();
+});
+
+// 用户下拉菜单
+function initUserDropdownMenu() {
+    var userMenuButton = document.getElementById('userMenuButton');
+    var userDropdownMenu = document.getElementById('userDropdownMenu');
+    
+    if (userMenuButton && userDropdownMenu) {
+        userMenuButton.addEventListener('click', function () {
+            userDropdownMenu.classList.toggle('hidden');
+        });
+
+        // 点击其他地方关闭下拉菜单
+        document.addEventListener('click', function (event) {
+            if (!userMenuButton.contains(event.target) && !userDropdownMenu.contains(event.target)) {
+                userDropdownMenu.classList.add('hidden');
+            }
+        });
+    }
+}
+
+// 侧边栏菜单交互
+function initSidebarMenu() {
+    var sidebarItems = document.querySelectorAll('.sidebar-item');
+    sidebarItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+            var url = this.getAttribute('data-url');
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+}
+</script>
+{% endblock %}

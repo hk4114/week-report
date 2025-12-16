@@ -1,0 +1,358 @@
+{% extends "layout.html" %}
+
+{% block title %}周报模板列表 - 周报管理系统{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">周报模板列表</h1>
+    <p class="text-gray-500 mt-1">管理和配置周报模板，分配角色权限</p>
+</div>
+
+<!-- 操作区域 -->
+<div class="card mb-6">
+    <div class="flex justify-between items-center">
+        <div class="flex space-x-3">
+            <button class="btn-primary" onclick="createTemplate()">
+                <i class="fas fa-plus mr-2"></i>
+                新增模板
+            </button>
+            <button class="btn-outline">
+                <i class="fas fa-download mr-2"></i>
+                导出配置
+            </button>
+        </div>
+        <div class="flex space-x-3">
+            <div class="relative">
+                <input class="form-input pl-10 pr-4 py-2 text-sm w-64" placeholder="搜索模板名称..." type="text" id="searchInput">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            <select class="form-select w-32 text-sm" id="statusFilter">
+                <option value="">全部状态</option>
+                <option value="启用">启用</option>
+                <option value="禁用">禁用</option>
+                <option value="草稿">草稿</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- 模板列表 -->
+<div class="card">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold text-gray-800">模板列表</h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1 text-primary"></i>
+            共 5 个模板
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="table-th" scope="col">模板名称</th>
+                    <th class="table-th" scope="col">模板类型</th>
+                    <th class="table-th" scope="col">状态</th>
+                    <th class="table-th" scope="col">创建人</th>
+                    <th class="table-th" scope="col">创建时间</th>
+                    <th class="table-th" scope="col">填报角色</th>
+                    <th class="table-th" scope="col">查看角色</th>
+                    <th class="table-th" scope="col">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full bg-success mr-2 mt-1"></div>
+                            <span class="font-medium">项目经理周报</span>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">项目周报</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">张三</td>
+                    <td class="table-td">2023-06-01</td>
+                    <td class="table-td">
+                        <div class="text-xs space-y-1">
+                            <span class="badge badge-primary">项目经理</span>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="text-xs space-y-1">
+                            <span class="badge badge-secondary">部门经理</span>
+                            <span class="badge badge-secondary">HR管理员</span>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-1">
+                            <button class="btn-outline text-xs py-1 px-2" onclick="editTemplate(1)">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="previewTemplate(1)">预览</button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="assignRoles(1)">角色分配</button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="copyTemplate(1)">复制</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full bg-success mr-2 mt-1"></div>
+                            <span class="font-medium">个人周报</span>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-warning">个人周报</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">李四</td>
+                    <td class="table-td">2023-05-28</td>
+                    <td class="table-td">
+                        <div class="text-xs space-y-1">
+                            <span class="badge badge-primary">普通员工</span>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="text-xs space-y-1">
+                            <span class="badge badge-secondary">部门经理</span>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-1">
+                            <button class="btn-outline text-xs py-1 px-2" onclick="editTemplate(2)">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="previewTemplate(2)">预览</button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="assignRoles(2)">角色分配</button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="copyTemplate(2)">复制</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full bg-warning mr-2 mt-1"></div>
+                            <span class="font-medium">部门周报</span>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-info">部门周报</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-warning">草稿</span>
+                    </td>
+                    <td class="table-td">王五</td>
+                    <td class="table-td">2023-06-10</td>
+                    <td class="table-td">
+                        <span class="text-gray-400 text-xs">未分配</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="text-gray-400 text-xs">未分配</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-1">
+                            <button class="btn-outline text-xs py-1 px-2" onclick="editTemplate(3)">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="previewTemplate(3)">预览</button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="assignRoles(3)">角色分配</button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="copyTemplate(3)">复制</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-500">显示 1 至 3 条，共 3 条</div>
+        <div class="flex space-x-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">
+                1
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 角色分配模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" id="roleModal">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl scale-95 opacity-0 transition-all duration-300">
+        <!-- 模态框头部 -->
+        <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800" id="roleModalTitle">角色分配</h3>
+            <button class="text-gray-400 hover:text-gray-500" id="closeRoleModal">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <!-- 模态框内容 -->
+        <div class="p-6">
+            <div class="space-y-6">
+                <!-- 填报角色 -->
+                <div>
+                    <h4 class="text-base font-medium text-gray-800 mb-3">填报角色</h4>
+                    <p class="text-sm text-gray-500 mb-3">选择可以填报该模板的角色</p>
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="text-primary focus:ring-primary" value="项目经理">
+                            <span class="ml-2 text-sm text-gray-700">项目经理</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="text-primary focus:ring-primary" value="普通员工">
+                            <span class="ml-2 text-sm text-gray-700">普通员工</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="text-primary focus:ring-primary" value="部门经理">
+                            <span class="ml-2 text-sm text-gray-700">部门经理</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 查看角色 -->
+                <div>
+                    <h4 class="text-base font-medium text-gray-800 mb-3">查看角色</h4>
+                    <p class="text-sm text-gray-500 mb-3">选择可以查看该模板周报的角色</p>
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="text-primary focus:ring-primary" value="部门经理">
+                            <span class="ml-2 text-sm text-gray-700">部门经理</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="text-primary focus:ring-primary" value="HR管理员">
+                            <span class="ml-2 text-sm text-gray-700">HR管理员</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="text-primary focus:ring-primary" value="系统管理员">
+                            <span class="ml-2 text-sm text-gray-700">系统管理员</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 影响用户预览 -->
+                <div>
+                    <h4 class="text-base font-medium text-gray-800 mb-3">影响用户预览</h4>
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <div class="text-sm text-gray-600">
+                            <p><strong>填报用户：</strong>张三、李四、王五（共3人）</p>
+                            <p><strong>查看用户：</strong>赵六、钱七（共2人）</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框底部 -->
+        <div class="border-t border-gray-200 px-6 py-4 flex justify-end space-x-3">
+            <button class="btn-secondary" id="cancelRoleBtn">取消</button>
+            <button class="btn-primary" id="saveRoleBtn">
+                <i class="fas fa-save mr-2"></i>
+                保存
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 创建模板
+function createTemplate() {
+    window.location.href = '{{ url_for("create_template") }}';
+}
+
+// 编辑模板
+function editTemplate(templateId) {
+    alert('编辑模板功能，模板ID: ' + templateId);
+}
+
+// 预览模板
+function previewTemplate(templateId) {
+    alert('预览模板功能，模板ID: ' + templateId);
+}
+
+// 复制模板
+function copyTemplate(templateId) {
+    if (confirm('确定要复制这个模板吗？')) {
+        alert('模板复制成功');
+    }
+}
+
+// 角色分配
+function assignRoles(templateId) {
+    var roleModal = document.getElementById('roleModal');
+    var roleModalTitle = document.getElementById('roleModalTitle');
+    
+    roleModalTitle.textContent = '角色分配 - 模板ID: ' + templateId;
+    
+    // 显示模态框
+    roleModal.classList.remove('hidden');
+    
+    // 添加显示动画
+    setTimeout(function () {
+        roleModal.querySelector('.max-w-2xl').classList.add('scale-100');
+        roleModal.querySelector('.max-w-2xl').classList.remove('scale-95', 'opacity-0');
+    }, 10);
+}
+
+// 关闭角色分配模态框
+function closeRoleModalFunc() {
+    var roleModal = document.getElementById('roleModal');
+    var modalContent = roleModal.querySelector('.max-w-2xl');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    modalContent.classList.remove('scale-100');
+    setTimeout(function () {
+        roleModal.classList.add('hidden');
+    }, 300);
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function () {
+    // 初始化角色分配模态框事件
+    var closeRoleModal = document.getElementById('closeRoleModal');
+    var cancelRoleBtn = document.getElementById('cancelRoleBtn');
+    var saveRoleBtn = document.getElementById('saveRoleBtn');
+    
+    // 关闭模态框
+    if (closeRoleModal) closeRoleModal.addEventListener('click', closeRoleModalFunc);
+    if (cancelRoleBtn) cancelRoleBtn.addEventListener('click', closeRoleModalFunc);
+    
+    // 点击模态框外部关闭
+    var roleModal = document.getElementById('roleModal');
+    if (roleModal) {
+        roleModal.addEventListener('click', function (event) {
+            if (event.target === roleModal) {
+                closeRoleModalFunc();
+            }
+        });
+    }
+    
+    // 保存角色分配
+    if (saveRoleBtn) {
+        saveRoleBtn.addEventListener('click', function () {
+            alert('角色分配保存成功！');
+            closeRoleModalFunc();
+        });
+    }
+    
+    // 搜索功能
+    var searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            console.log('搜索:', this.value);
+        });
+    }
+    
+    // 状态筛选
+    var statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            console.log('筛选状态:', this.value);
+        });
+    }
+});
+</script>
+{% endblock %}

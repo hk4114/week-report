@@ -1,0 +1,529 @@
+{% extends "layout.html" %}
+
+{% block title %}角色管理{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">角色管理</h1>
+    <p class="text-gray-500 mt-1">系统角色信息维护，支持角色权限和用户分配管理</p>
+</div>
+
+<!-- 查询区域 -->
+<div class="card mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="form-label">角色编码</label>
+            <input class="form-input" type="text" placeholder="请输入角色编码" />
+        </div>
+        <div>
+            <label class="form-label">角色名称</label>
+            <input class="form-input" type="text" placeholder="请输入角色名称" />
+        </div>
+        <div>
+            <label class="form-label">角色状态</label>
+            <select class="form-select">
+                <option value="">全部状态</option>
+                <option value="active">启用</option>
+                <option value="inactive">禁用</option>
+            </select>
+        </div>
+    </div>
+    <div class="flex justify-between mt-4">
+        <button class="btn-primary" onclick="openRoleModal()">
+            <i class="fas fa-plus mr-2"></i>
+            新增角色
+        </button>
+        <div class="flex space-x-3">
+            <button class="btn-outline">
+                <i class="fas fa-sync-alt mr-2"></i>
+                重置
+            </button>
+            <button class="btn-primary">
+                <i class="fas fa-search mr-2"></i>
+                查询
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 角色列表 -->
+<div class="card">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold text-gray-800">角色列表</h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1 text-primary"></i>
+            共查询到 5 条记录
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="table-th">角色编码</th>
+                    <th class="table-th">角色名称</th>
+                    <th class="table-th">角色描述</th>
+                    <th class="table-th">用户数量</th>
+                    <th class="table-th">状态</th>
+                    <th class="table-th">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">ADMIN</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-shield text-danger mr-2"></i>
+                            <span class="font-medium">系统管理员</span>
+                        </div>
+                    </td>
+                    <td class="table-td">拥有系统所有权限，可管理用户、角色等核心功能</td>
+                    <td class="table-td">
+                        <span class="badge badge-danger">2人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editRole('ADMIN')">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="assignUsers('ADMIN', '系统管理员')">用户分配</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">MANAGER</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-tie text-primary mr-2"></i>
+                            <span class="font-medium">部门经理</span>
+                        </div>
+                    </td>
+                    <td class="table-td">可审核下属周报，查看部门相关数据</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">7人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editRole('MANAGER')">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="assignUsers('MANAGER', '部门经理')">用户分配</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">PROJECT_MANAGER</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-project-diagram text-warning mr-2"></i>
+                            <span class="font-medium">项目经理</span>
+                        </div>
+                    </td>
+                    <td class="table-td">可填报项目周报，查看项目相关数据</td>
+                    <td class="table-td">
+                        <span class="badge badge-warning">5人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editRole('PROJECT_MANAGER')">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="assignUsers('PROJECT_MANAGER', '项目经理')">用户分配</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">EMPLOYEE</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-user text-gray-500 mr-2"></i>
+                            <span class="font-medium">普通员工</span>
+                        </div>
+                    </td>
+                    <td class="table-td">可填报个人周报，查看个人相关数据</td>
+                    <td class="table-td">
+                        <span class="badge badge-gray">18人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editRole('EMPLOYEE')">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="assignUsers('EMPLOYEE', '普通员工')">用户分配</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">HR_ADMIN</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-users-cog text-success mr-2"></i>
+                            <span class="font-medium">HR管理员</span>
+                        </div>
+                    </td>
+                    <td class="table-td">可查看所有周报，管理用户信息</td>
+                    <td class="table-td">
+                        <span class="badge badge-success">3人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editRole('HR_ADMIN')">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="assignUsers('HR_ADMIN', 'HR管理员')">用户分配</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 分页 -->
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-500">显示 1 至 5 条，共 5 条</div>
+        <div class="flex space-x-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">1</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 新增/编辑角色模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="roleModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-lg w-full mx-4">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800" id="roleModalTitle">新增角色</h3>
+        </div>
+        <div class="p-6">
+            <form id="roleForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="form-label">角色编码 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="roleCode" placeholder="请输入角色编码" required />
+                        <div class="text-xs text-gray-500 mt-1">建议使用英文大写和下划线，如PROJECT_MANAGER</div>
+                    </div>
+                    <div>
+                        <label class="form-label">角色名称 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="roleName" placeholder="请输入角色名称" required />
+                    </div>
+                    <div>
+                        <label class="form-label">角色描述</label>
+                        <textarea class="form-input" name="roleDesc" rows="3" placeholder="请输入角色职能描述"></textarea>
+                    </div>
+                    <div>
+                        <label class="form-label">角色状态</label>
+                        <select class="form-select" name="status">
+                            <option value="active">启用</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeRoleModal()">取消</button>
+            <button class="btn-primary" onclick="saveRole()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 用户分配模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="userAssignModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800" id="assignModalTitle">角色用户分配</h3>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[60vh]">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 可分配用户列表 -->
+                <div>
+                    <h4 class="text-md font-medium text-gray-800 mb-3">可分配用户</h4>
+                    <div class="border border-gray-200 rounded-lg">
+                        <div class="p-3 border-b border-gray-200 bg-gray-50">
+                            <input class="form-input text-sm" type="text" placeholder="搜索用户..." id="searchAvailableUsers" />
+                        </div>
+                        <div class="max-h-64 overflow-y-auto" id="availableUsersList">
+                            <label class="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary mr-3" value="zhangsan" />
+                                <div>
+                                    <div class="font-medium text-gray-800">张三 (zhangsan)</div>
+                                    <div class="text-sm text-gray-500">技术部 - E001</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary mr-3" value="lisi" />
+                                <div>
+                                    <div class="font-medium text-gray-800">李四 (lisi)</div>
+                                    <div class="text-sm text-gray-500">技术部 - E002</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary mr-3" value="wangwu" />
+                                <div>
+                                    <div class="font-medium text-gray-800">王五 (wangwu)</div>
+                                    <div class="text-sm text-gray-500">产品部 - E003</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary mr-3" value="zhaoliu" />
+                                <div>
+                                    <div class="font-medium text-gray-800">赵六 (zhaoliu)</div>
+                                    <div class="text-sm text-gray-500">产品部 - E004</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary mr-3" value="qianqi" />
+                                <div>
+                                    <div class="font-medium text-gray-800">钱七 (qianqi)</div>
+                                    <div class="text-sm text-gray-500">市场部 - E005</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 已分配用户列表 -->
+                <div>
+                    <h4 class="text-md font-medium text-gray-800 mb-3">已分配用户</h4>
+                    <div class="border border-gray-200 rounded-lg">
+                        <div class="p-3 border-b border-gray-200 bg-gray-50">
+                            <div class="text-sm text-gray-500">已选择用户 <span class="text-primary font-medium" id="selectedCount">0</span> 人</div>
+                        </div>
+                        <div class="max-h-64 overflow-y-auto" id="assignedUsersList">
+                            <div class="p-8 text-center text-gray-400">
+                                <i class="fas fa-users text-3xl mb-2"></i>
+                                <div>暂无已分配用户</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="flex justify-center mt-6 space-x-4">
+                <button class="btn-primary" onclick="assignSelectedUsers()">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    分配选中用户
+                </button>
+                <button class="btn-outline" onclick="removeSelectedUsers()">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    移除选中用户
+                </button>
+            </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeUserAssignModal()">取消</button>
+            <button class="btn-primary" onclick="saveUserAssignment()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentRoleCode = '';
+
+// 打开新增角色模态框
+function openRoleModal(isEdit = false, roleData = null) {
+    const modal = document.getElementById('roleModal');
+    const title = document.getElementById('roleModalTitle');
+    const form = document.getElementById('roleForm');
+    
+    if (isEdit && roleData) {
+        title.textContent = '编辑角色';
+        form.elements.roleCode.value = roleData.code || '';
+        form.elements.roleCode.readOnly = true;
+        form.elements.roleName.value = roleData.name || '';
+        form.elements.roleDesc.value = roleData.desc || '';
+        form.elements.status.value = roleData.status || 'active';
+    } else {
+        title.textContent = '新增角色';
+        form.reset();
+        form.elements.roleCode.readOnly = false;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+// 关闭角色模态框
+function closeRoleModal() {
+    document.getElementById('roleModal').classList.add('hidden');
+}
+
+// 保存角色
+function saveRole() {
+    const form = document.getElementById('roleForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const formData = new FormData(form);
+    console.log('保存角色数据:', Object.fromEntries(formData));
+    alert('角色保存成功！');
+    closeRoleModal();
+    location.reload();
+}
+
+// 编辑角色
+function editRole(roleCode) {
+    const roleData = {
+        'ADMIN': { code: 'ADMIN', name: '系统管理员', desc: '拥有系统所有权限，可管理用户、角色等核心功能', status: 'active' },
+        'MANAGER': { code: 'MANAGER', name: '部门经理', desc: '可审核下属周报，查看部门相关数据', status: 'active' }
+    };
+    
+    const data = roleData[roleCode] || {};
+    openRoleModal(true, data);
+}
+
+// 打开用户分配模态框
+function assignUsers(roleCode, roleName) {
+    currentRoleCode = roleCode;
+    const modal = document.getElementById('userAssignModal');
+    const title = document.getElementById('assignModalTitle');
+    
+    title.textContent = `${roleName} - 用户分配`;
+    
+    // 重置选择状态
+    const checkboxes = document.querySelectorAll('#availableUsersList input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    
+    // 清空已分配列表
+    document.getElementById('assignedUsersList').innerHTML = `
+        <div class="p-8 text-center text-gray-400">
+            <i class="fas fa-users text-3xl mb-2"></i>
+            <div>暂无已分配用户</div>
+        </div>
+    `;
+    
+    updateSelectedCount();
+    modal.classList.remove('hidden');
+}
+
+// 关闭用户分配模态框
+function closeUserAssignModal() {
+    document.getElementById('userAssignModal').classList.add('hidden');
+}
+
+// 分配选中用户
+function assignSelectedUsers() {
+    const checkboxes = document.querySelectorAll('#availableUsersList input[type="checkbox"]:checked');
+    const assignedList = document.getElementById('assignedUsersList');
+    
+    if (checkboxes.length === 0) {
+        alert('请先选择要分配的用户！');
+        return;
+    }
+    
+    // 清空提示信息
+    if (assignedList.querySelector('.text-gray-400')) {
+        assignedList.innerHTML = '';
+    }
+    
+    checkboxes.forEach(checkbox => {
+        const label = checkbox.closest('label');
+        const userInfo = label.querySelector('div');
+        const userName = userInfo.querySelector('.font-medium').textContent;
+        const userDetail = userInfo.querySelector('.text-sm').textContent;
+        
+        // 创建已分配用户项
+        const assignedItem = document.createElement('label');
+        assignedItem.className = 'flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100';
+        assignedItem.innerHTML = `
+            <input type="checkbox" class="rounded border-gray-300 text-danger focus:ring-danger mr-3" value="${checkbox.value}" />
+            <div>
+                <div class="font-medium text-gray-800">${userName}</div>
+                <div class="text-sm text-gray-500">${userDetail}</div>
+            </div>
+        `;
+        
+        assignedList.appendChild(assignedItem);
+        checkbox.checked = false;
+    });
+    
+    updateSelectedCount();
+}
+
+// 移除选中用户
+function removeSelectedUsers() {
+    const checkboxes = document.querySelectorAll('#assignedUsersList input[type="checkbox"]:checked');
+    
+    if (checkboxes.length === 0) {
+        alert('请先选择要移除的用户！');
+        return;
+    }
+    
+    checkboxes.forEach(checkbox => {
+        const label = checkbox.closest('label');
+        label.remove();
+    });
+    
+    // 如果没有用户了，显示提示信息
+    const assignedList = document.getElementById('assignedUsersList');
+    if (assignedList.children.length === 0) {
+        assignedList.innerHTML = `
+            <div class="p-8 text-center text-gray-400">
+                <i class="fas fa-users text-3xl mb-2"></i>
+                <div>暂无已分配用户</div>
+            </div>
+        `;
+    }
+    
+    updateSelectedCount();
+}
+
+// 更新选中用户数量
+function updateSelectedCount() {
+    const assignedUsers = document.querySelectorAll('#assignedUsersList label');
+    const count = assignedUsers.length;
+    const hasEmptyMessage = document.querySelector('#assignedUsersList .text-gray-400');
+    
+    document.getElementById('selectedCount').textContent = hasEmptyMessage ? '0' : count;
+}
+
+// 保存用户分配
+function saveUserAssignment() {
+    const assignedUsers = Array.from(document.querySelectorAll('#assignedUsersList input[type="checkbox"]')).map(cb => cb.value);
+    console.log(`角色 ${currentRoleCode} 分配用户:`, assignedUsers);
+    alert('用户分配保存成功！');
+    closeUserAssignModal();
+    location.reload();
+}
+
+// 搜索可分配用户
+document.getElementById('searchAvailableUsers').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const userLabels = document.querySelectorAll('#availableUsersList label');
+    
+    userLabels.forEach(label => {
+        const userText = label.textContent.toLowerCase();
+        if (userText.includes(searchTerm)) {
+            label.style.display = 'flex';
+        } else {
+            label.style.display = 'none';
+        }
+    });
+});
+
+// 页面初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 绑定模态框背景点击事件
+    document.getElementById('roleModal').addEventListener('click', function(e) {
+        if (e.target === this) closeRoleModal();
+    });
+    
+    document.getElementById('userAssignModal').addEventListener('click', function(e) {
+        if (e.target === this) closeUserAssignModal();
+    });
+});
+</script>
+{% endblock %}

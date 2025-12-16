@@ -1,0 +1,412 @@
+{% extends "layout.html" %}
+
+{% block title %}部门管理{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">部门管理</h1>
+    <p class="text-gray-500 mt-1">系统部门信息维护，采用单级结构设计</p>
+</div>
+
+<!-- 查询区域 -->
+<div class="card mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="form-label">部门编码</label>
+            <input class="form-input" type="text" placeholder="请输入部门编码" />
+        </div>
+        <div>
+            <label class="form-label">部门名称</label>
+            <input class="form-input" type="text" placeholder="请输入部门名称" />
+        </div>
+        <div>
+            <label class="form-label">部门状态</label>
+            <select class="form-select">
+                <option value="">全部状态</option>
+                <option value="active">启用</option>
+                <option value="inactive">禁用</option>
+            </select>
+        </div>
+    </div>
+    <div class="flex justify-between mt-4">
+        <button class="btn-primary" onclick="openDepartmentModal()">
+            <i class="fas fa-plus mr-2"></i>
+            新增部门
+        </button>
+        <div class="flex space-x-3">
+            <button class="btn-outline">
+                <i class="fas fa-sync-alt mr-2"></i>
+                重置
+            </button>
+            <button class="btn-primary">
+                <i class="fas fa-search mr-2"></i>
+                查询
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 部门列表 -->
+<div class="card">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold text-gray-800">部门列表</h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1 text-primary"></i>
+            共查询到 7 条记录
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="table-th">部门编码</th>
+                    <th class="table-th">部门名称</th>
+                    <th class="table-th">部门描述</th>
+                    <th class="table-th">部门负责人</th>
+                    <th class="table-th">人员数量</th>
+                    <th class="table-th">状态</th>
+                    <th class="table-th">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">TECH</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-code text-primary mr-2"></i>
+                            <span class="font-medium">技术部</span>
+                        </div>
+                    </td>
+                    <td class="table-td">负责产品研发、技术架构设计、系统维护等工作</td>
+                    <td class="table-td">李四</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">8人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editDepartment('TECH')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDepartment('TECH', '技术部')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">PRODUCT</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-lightbulb text-warning mr-2"></i>
+                            <span class="font-medium">产品部</span>
+                        </div>
+                    </td>
+                    <td class="table-td">负责产品规划、需求分析、用户体验设计等工作</td>
+                    <td class="table-td">赵六</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">5人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editDepartment('PRODUCT')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDepartment('PRODUCT', '产品部')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">MARKET</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-chart-line text-success mr-2"></i>
+                            <span class="font-medium">市场部</span>
+                        </div>
+                    </td>
+                    <td class="table-td">负责市场推广、品牌建设、渠道拓展等工作</td>
+                    <td class="table-td">钱七</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">6人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editDepartment('MARKET')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDepartment('MARKET', '市场部')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">SALES</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-handshake text-info mr-2"></i>
+                            <span class="font-medium">销售部</span>
+                        </div>
+                    </td>
+                    <td class="table-td">负责客户开发、销售管理、合同签约等工作</td>
+                    <td class="table-td">孙八</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">4人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editDepartment('SALES')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDepartment('SALES', '销售部')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">ADMIN</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-cogs text-gray-500 mr-2"></i>
+                            <span class="font-medium">行政部</span>
+                        </div>
+                    </td>
+                    <td class="table-td">负责行政管理、后勤保障、办公设备采购等工作</td>
+                    <td class="table-td">周九</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">3人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editDepartment('ADMIN')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDepartment('ADMIN', '行政部')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">FINANCE</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-dollar-sign text-warning mr-2"></i>
+                            <span class="font-medium">财务部</span>
+                        </div>
+                    </td>
+                    <td class="table-td">负责财务管理、预算控制、成本核算等工作</td>
+                    <td class="table-td">吴十</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">3人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editDepartment('FINANCE')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDepartment('FINANCE', '财务部')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">HR</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-users text-primary mr-2"></i>
+                            <span class="font-medium">人力资源部</span>
+                        </div>
+                    </td>
+                    <td class="table-td">负责人员招聘、培训发展、绩效考核等工作</td>
+                    <td class="table-td">郑十一</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">2人</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editDepartment('HR')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDepartment('HR', '人力资源部')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 分页 -->
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-500">显示 1 至 7 条，共 7 条</div>
+        <div class="flex space-x-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">1</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 新增/编辑部门模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="departmentModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-lg w-full mx-4">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800" id="modalTitle">新增部门</h3>
+        </div>
+        <div class="p-6">
+            <form id="departmentForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="form-label">部门编码 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="departmentCode" placeholder="请输入部门编码" required />
+                        <div class="text-xs text-gray-500 mt-1">建议使用英文大写字母，如TECH、PRODUCT</div>
+                    </div>
+                    <div>
+                        <label class="form-label">部门名称 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="departmentName" placeholder="请输入部门名称" required />
+                    </div>
+                    <div>
+                        <label class="form-label">部门描述</label>
+                        <textarea class="form-input" name="departmentDesc" rows="3" placeholder="请输入部门职能描述"></textarea>
+                    </div>
+                    <div>
+                        <label class="form-label">部门负责人</label>
+                        <select class="form-select" name="supervisor">
+                            <option value="">请选择部门负责人</option>
+                            <option value="lisi">李四</option>
+                            <option value="wangwu">王五</option>
+                            <option value="zhaoliu">赵六</option>
+                            <option value="qianqi">钱七</option>
+                            <option value="sunba">孙八</option>
+                            <option value="zhoujiu">周九</option>
+                            <option value="wushi">吴十</option>
+                            <option value="zhengshiyi">郑十一</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">部门状态</label>
+                        <select class="form-select" name="status">
+                            <option value="active">启用</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeDepartmentModal()">取消</button>
+            <button class="btn-primary" onclick="saveDepartment()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 打开新增部门模态框
+function openDepartmentModal(isEdit = false, departmentData = null) {
+    const modal = document.getElementById('departmentModal');
+    const title = document.getElementById('modalTitle');
+    const form = document.getElementById('departmentForm');
+    
+    if (isEdit && departmentData) {
+        title.textContent = '编辑部门';
+        // 填充表单数据
+        form.elements.departmentCode.value = departmentData.code || '';
+        form.elements.departmentCode.readOnly = true; // 编辑时部门编码不可修改
+        form.elements.departmentName.value = departmentData.name || '';
+        form.elements.departmentDesc.value = departmentData.desc || '';
+        form.elements.supervisor.value = departmentData.supervisor || '';
+        form.elements.status.value = departmentData.status || 'active';
+    } else {
+        title.textContent = '新增部门';
+        form.reset();
+        form.elements.departmentCode.readOnly = false;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+// 关闭部门模态框
+function closeDepartmentModal() {
+    const modal = document.getElementById('departmentModal');
+    modal.classList.add('hidden');
+}
+
+// 保存部门
+function saveDepartment() {
+    const form = document.getElementById('departmentForm');
+    const formData = new FormData(form);
+    
+    // 验证必填项
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // 这里应该发送AJAX请求保存数据
+    console.log('保存部门数据:', Object.fromEntries(formData));
+    
+    // 模拟保存成功
+    alert('部门保存成功！');
+    closeDepartmentModal();
+    // 刷新页面数据
+    location.reload();
+}
+
+// 编辑部门
+function editDepartment(departmentCode) {
+    // 模拟部门数据
+    const departmentData = {
+        'TECH': {
+            code: 'TECH',
+            name: '技术部',
+            desc: '负责产品研发、技术架构设计、系统维护等工作',
+            supervisor: 'lisi',
+            status: 'active'
+        },
+        'PRODUCT': {
+            code: 'PRODUCT',
+            name: '产品部',
+            desc: '负责产品规划、需求分析、用户体验设计等工作',
+            supervisor: 'zhaoliu',
+            status: 'active'
+        }
+    };
+    
+    const data = departmentData[departmentCode] || {};
+    openDepartmentModal(true, data);
+}
+
+// 删除部门
+function deleteDepartment(departmentCode, departmentName) {
+    if (confirm(`确定要删除部门 ${departmentName} 吗？删除前请确保该部门下没有用户。`)) {
+        // 这里应该先检查是否有关联用户
+        const hasUsers = Math.random() > 0.5; // 模拟检查结果
+        
+        if (hasUsers) {
+            alert('该部门下还有用户，无法删除！请先转移或删除相关用户。');
+            return;
+        }
+        
+        // 这里应该发送AJAX请求删除部门
+        console.log('删除部门:', departmentCode);
+        alert('部门删除成功！');
+        // 刷新页面数据
+        location.reload();
+    }
+}
+
+// 页面初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 点击模态框背景关闭
+    document.getElementById('departmentModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDepartmentModal();
+        }
+    });
+});
+</script>
+{% endblock %}

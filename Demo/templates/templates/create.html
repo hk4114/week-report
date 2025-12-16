@@ -1,0 +1,501 @@
+{% extends "layout.html" %}
+
+{% block title %}新增周报模板 - 周报管理系统{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">新增周报模板</h1>
+    <p class="text-gray-500 mt-1">创建灵活的周报模板，支持多种数据对象和控件类型</p>
+</div>
+
+<!-- 模板配置 -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- 左侧配置区域 -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- 基本信息 -->
+        <div class="card">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">基本信息</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        模板名称
+                    </label>
+                    <input class="form-input" placeholder="请输入模板名称" type="text" id="templateName">
+                </div>
+                <div>
+                    <label class="form-label">
+                        <span class="text-danger">*</span>
+                        模板类型
+                    </label>
+                    <select class="form-select" id="templateType">
+                        <option value="">请选择模板类型</option>
+                        <option value="个人周报">个人周报</option>
+                        <option value="项目周报">项目周报</option>
+                        <option value="部门周报">部门周报</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="form-label">模板描述</label>
+                    <textarea class="form-input h-24" placeholder="请输入模板描述" id="templateDesc"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 数据对象配置 -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-800">数据对象配置</h2>
+                <button class="btn-primary" onclick="addDataObject()">
+                    <i class="fas fa-plus mr-2"></i>
+                    添加数据对象
+                </button>
+            </div>
+            
+            <div id="dataObjectContainer">
+                <!-- 数据对象1 -->
+                <div class="border border-gray-200 rounded-lg p-4 mb-4" data-object-id="1">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-medium text-gray-800">数据对象 #1</h3>
+                        <div class="flex space-x-2">
+                            <button class="btn-outline text-xs py-1 px-2" onclick="moveObjectUp(1)">
+                                <i class="fas fa-arrow-up"></i>
+                            </button>
+                            <button class="btn-outline text-xs py-1 px-2" onclick="moveObjectDown(1)">
+                                <i class="fas fa-arrow-down"></i>
+                            </button>
+                            <button class="btn-outline text-xs py-1 px-2 text-danger" onclick="removeDataObject(1)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="form-label text-xs">对象名称</label>
+                            <input class="form-input text-sm" placeholder="如：本周工作总结" type="text" value="本周工作总结">
+                        </div>
+                        <div>
+                            <label class="form-label text-xs">是否必填</label>
+                            <select class="form-select text-sm">
+                                <option value="true">是</option>
+                                <option value="false">否</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="form-label text-xs">对象描述</label>
+                            <input class="form-input text-sm" placeholder="请详细描述本周完成的主要工作内容" type="text">
+                        </div>
+                    </div>
+                    
+                    <!-- 数据项配置 -->
+                    <div class="border-t border-gray-100 pt-3">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="text-sm font-medium text-gray-700">数据项配置</h4>
+                            <button class="btn-secondary text-xs py-1 px-2" onclick="addDataItem(1)">
+                                <i class="fas fa-plus mr-1"></i>
+                                添加数据项
+                            </button>
+                        </div>
+                        <div class="space-y-3" id="dataItemContainer1">
+                            <!-- 数据项1 -->
+                            <div class="bg-gray-50 p-3 rounded border" data-item-id="1">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-medium text-gray-600">数据项 #1</span>
+                                    <button class="text-danger text-xs" onclick="removeDataItem(1, 1)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                    <div>
+                                        <label class="form-label text-xs">项目名称</label>
+                                        <input class="form-input text-xs" placeholder="主要工作内容" type="text" value="主要工作内容">
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-xs">数据类型</label>
+                                        <select class="form-select text-xs">
+                                            <option value="字符型" selected>字符型</option>
+                                            <option value="数字型">数字型</option>
+                                            <option value="日期型">日期型</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-xs">控件类型</label>
+                                        <select class="form-select text-xs">
+                                            <option value="文本框">文本框</option>
+                                            <option value="多行文本框" selected>多行文本框</option>
+                                            <option value="下拉选择框">下拉选择框</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-xs">是否必填</label>
+                                        <select class="form-select text-xs">
+                                            <option value="true" selected>是</option>
+                                            <option value="false">否</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 数据项2 -->
+                            <div class="bg-gray-50 p-3 rounded border" data-item-id="2">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-medium text-gray-600">数据项 #2</span>
+                                    <button class="text-danger text-xs" onclick="removeDataItem(1, 2)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                    <div>
+                                        <label class="form-label text-xs">项目名称</label>
+                                        <input class="form-input text-xs" placeholder="工作成果" type="text" value="工作成果">
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-xs">数据类型</label>
+                                        <select class="form-select text-xs">
+                                            <option value="字符型" selected>字符型</option>
+                                            <option value="数字型">数字型</option>
+                                            <option value="日期型">日期型</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-xs">控件类型</label>
+                                        <select class="form-select text-xs">
+                                            <option value="文本框">文本框</option>
+                                            <option value="多行文本框" selected>多行文本框</option>
+                                            <option value="下拉选择框">下拉选择框</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-xs">是否必填</label>
+                                        <select class="form-select text-xs">
+                                            <option value="true" selected>是</option>
+                                            <option value="false">否</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 保存按钮 -->
+        <div class="flex justify-between">
+            <button class="btn-outline" onclick="goBack()">
+                <i class="fas fa-arrow-left mr-2"></i>
+                返回列表
+            </button>
+            <div class="flex space-x-3">
+                <button class="btn-secondary" onclick="saveDraft()">
+                    <i class="fas fa-save mr-2"></i>
+                    保存草稿
+                </button>
+                <button class="btn-primary" onclick="saveAndPublish()">
+                    <i class="fas fa-check mr-2"></i>
+                    保存并发布
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 右侧预览区域 -->
+    <div class="lg:col-span-1">
+        <div class="card sticky top-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">实时预览</h2>
+            <div id="previewContainer" class="border border-gray-200 rounded p-4 min-h-96 bg-gray-50">
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-eye text-2xl mb-2"></i>
+                    <p class="text-sm">配置数据对象后将显示预览</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button class="btn-outline w-full text-sm" onclick="refreshPreview()">
+                    <i class="fas fa-refresh mr-2"></i>
+                    刷新预览
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var objectCounter = 1;
+var itemCounters = { 1: 2 };
+
+// 添加数据对象
+function addDataObject() {
+    objectCounter++;
+    itemCounters[objectCounter] = 0;
+    
+    var container = document.getElementById('dataObjectContainer');
+    var objectHtml = `
+        <div class="border border-gray-200 rounded-lg p-4 mb-4" data-object-id="${objectCounter}">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-medium text-gray-800">数据对象 #${objectCounter}</h3>
+                <div class="flex space-x-2">
+                    <button class="btn-outline text-xs py-1 px-2" onclick="moveObjectUp(${objectCounter})">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <button class="btn-outline text-xs py-1 px-2" onclick="moveObjectDown(${objectCounter})">
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                    <button class="btn-outline text-xs py-1 px-2 text-danger" onclick="removeDataObject(${objectCounter})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <div>
+                    <label class="form-label text-xs">对象名称</label>
+                    <input class="form-input text-sm" placeholder="如：下周工作计划" type="text">
+                </div>
+                <div>
+                    <label class="form-label text-xs">是否必填</label>
+                    <select class="form-select text-sm">
+                        <option value="true">是</option>
+                        <option value="false">否</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="form-label text-xs">对象描述</label>
+                    <input class="form-input text-sm" placeholder="请详细描述对象用途" type="text">
+                </div>
+            </div>
+            <div class="border-t border-gray-100 pt-3">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-sm font-medium text-gray-700">数据项配置</h4>
+                    <button class="btn-secondary text-xs py-1 px-2" onclick="addDataItem(${objectCounter})">
+                        <i class="fas fa-plus mr-1"></i>
+                        添加数据项
+                    </button>
+                </div>
+                <div class="space-y-3" id="dataItemContainer${objectCounter}">
+                    <div class="text-center text-gray-500 py-4 text-xs">
+                        点击"添加数据项"开始配置
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', objectHtml);
+    refreshPreview();
+}
+
+// 移除数据对象
+function removeDataObject(objectId) {
+    if (confirm('确定要删除这个数据对象吗？')) {
+        var element = document.querySelector(`[data-object-id="${objectId}"]`);
+        if (element) {
+            element.remove();
+            delete itemCounters[objectId];
+            refreshPreview();
+        }
+    }
+}
+
+// 添加数据项
+function addDataItem(objectId) {
+    if (!itemCounters[objectId]) {
+        itemCounters[objectId] = 0;
+    }
+    itemCounters[objectId]++;
+    
+    var container = document.getElementById(`dataItemContainer${objectId}`);
+    
+    // 如果是第一个数据项，清除提示文本
+    if (itemCounters[objectId] === 1) {
+        container.innerHTML = '';
+    }
+    
+    var itemId = itemCounters[objectId];
+    var itemHtml = `
+        <div class="bg-gray-50 p-3 rounded border" data-item-id="${itemId}">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-medium text-gray-600">数据项 #${itemId}</span>
+                <button class="text-danger text-xs" onclick="removeDataItem(${objectId}, ${itemId})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                <div>
+                    <label class="form-label text-xs">项目名称</label>
+                    <input class="form-input text-xs" placeholder="项目名称" type="text">
+                </div>
+                <div>
+                    <label class="form-label text-xs">数据类型</label>
+                    <select class="form-select text-xs">
+                        <option value="字符型">字符型</option>
+                        <option value="数字型">数字型</option>
+                        <option value="日期型">日期型</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label text-xs">控件类型</label>
+                    <select class="form-select text-xs">
+                        <option value="文本框">文本框</option>
+                        <option value="多行文本框">多行文本框</option>
+                        <option value="下拉选择框">下拉选择框</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label text-xs">是否必填</label>
+                    <select class="form-select text-xs">
+                        <option value="true">是</option>
+                        <option value="false">否</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', itemHtml);
+    refreshPreview();
+}
+
+// 移除数据项
+function removeDataItem(objectId, itemId) {
+    var container = document.getElementById(`dataItemContainer${objectId}`);
+    var element = container.querySelector(`[data-item-id="${itemId}"]`);
+    if (element) {
+        element.remove();
+        
+        // 如果没有数据项了，显示提示文本
+        if (container.children.length === 0) {
+            container.innerHTML = '<div class="text-center text-gray-500 py-4 text-xs">点击"添加数据项"开始配置</div>';
+        }
+        
+        refreshPreview();
+    }
+}
+
+// 上移对象
+function moveObjectUp(objectId) {
+    var element = document.querySelector(`[data-object-id="${objectId}"]`);
+    var prev = element.previousElementSibling;
+    if (prev) {
+        element.parentNode.insertBefore(element, prev);
+        refreshPreview();
+    }
+}
+
+// 下移对象
+function moveObjectDown(objectId) {
+    var element = document.querySelector(`[data-object-id="${objectId}"]`);
+    var next = element.nextElementSibling;
+    if (next) {
+        element.parentNode.insertBefore(next, element);
+        refreshPreview();
+    }
+}
+
+// 刷新预览
+function refreshPreview() {
+    var previewContainer = document.getElementById('previewContainer');
+    var templateName = document.getElementById('templateName').value || '未命名模板';
+    
+    var previewHtml = `
+        <div class="text-sm">
+            <div class="font-medium text-gray-800 mb-3">${templateName}</div>
+            <div class="space-y-4">
+                <div class="text-xs text-gray-500">模板预览（实际填报时的效果）</div>
+    `;
+    
+    // 遍历所有数据对象
+    var objects = document.querySelectorAll('[data-object-id]');
+    objects.forEach(function(obj, index) {
+        var objectName = obj.querySelector('input[placeholder="如：本周工作总结"], input[placeholder="如：下周工作计划"]').value || `数据对象 ${index + 1}`;
+        previewHtml += `
+            <div class="border border-gray-200 rounded p-3">
+                <h4 class="text-xs font-medium text-gray-700 mb-2">${objectName}</h4>
+                <div class="space-y-2">
+        `;
+        
+        // 遍历数据项
+        var items = obj.querySelectorAll('[data-item-id]');
+        items.forEach(function(item) {
+            var itemName = item.querySelector('input[placeholder="项目名称"]').value || '数据项';
+            var controlType = item.querySelector('select').value;
+            
+            previewHtml += `
+                <div>
+                    <label class="text-xs text-gray-600">${itemName}</label>
+                    <div class="mt-1">
+            `;
+            
+            if (controlType === '多行文本框') {
+                previewHtml += '<textarea class="w-full text-xs border border-gray-200 rounded p-1 h-12" disabled></textarea>';
+            } else if (controlType === '下拉选择框') {
+                previewHtml += '<select class="w-full text-xs border border-gray-200 rounded p-1" disabled><option>请选择</option></select>';
+            } else {
+                previewHtml += '<input class="w-full text-xs border border-gray-200 rounded p-1" disabled>';
+            }
+            
+            previewHtml += '</div></div>';
+        });
+        
+        previewHtml += '</div></div>';
+    });
+    
+    previewHtml += '</div></div>';
+    previewContainer.innerHTML = previewHtml;
+}
+
+// 保存草稿
+function saveDraft() {
+    if (validateForm()) {
+        alert('模板草稿保存成功！');
+    }
+}
+
+// 保存并发布
+function saveAndPublish() {
+    if (validateForm()) {
+        alert('模板保存并发布成功！');
+        goBack();
+    }
+}
+
+// 验证表单
+function validateForm() {
+    var templateName = document.getElementById('templateName').value;
+    var templateType = document.getElementById('templateType').value;
+    
+    if (!templateName) {
+        alert('请输入模板名称');
+        return false;
+    }
+    
+    if (!templateType) {
+        alert('请选择模板类型');
+        return false;
+    }
+    
+    var objects = document.querySelectorAll('[data-object-id]');
+    if (objects.length === 0) {
+        alert('请至少添加一个数据对象');
+        return false;
+    }
+    
+    return true;
+}
+
+// 返回列表
+function goBack() {
+    window.location.href = '{{ url_for("templates_list") }}';
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function () {
+    // 监听模板名称变化
+    var templateName = document.getElementById('templateName');
+    if (templateName) {
+        templateName.addEventListener('input', refreshPreview);
+    }
+    
+    // 初始化预览
+    refreshPreview();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,207 @@
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>周报管理系统 - 登录</title>
+    <script src="https://res.gemcoder.com/js/reload.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#165DFF',
+              secondary: '#36CFC9',
+              success: '#52C41A',
+              warning: '#FAAD14',
+              danger: '#FF4D4F',
+              info: '#1890FF',
+              light: '#F5F5F5',
+              dark: '#1D2129',
+              'gray-100': '#F2F3F5',
+              'gray-200': '#E5E6EB',
+              'gray-300': '#C9CDD4',
+              'gray-400': '#86909C',
+              'gray-500': '#4E5969',
+              'gray-600': '#272E3B',
+              'gray-700': '#1D2129'
+            },
+            fontFamily: {
+              inter: ['Inter', 'system-ui', 'sans-serif']
+            },
+            boxShadow: {
+              'card': '0 2px 8px rgba(0, 0, 0, 0.08)',
+              'dropdown': '0 4px 16px rgba(0, 0, 0, 0.12)'
+            }
+          }
+        }
+      };
+    </script>
+    <style type="text/tailwindcss">
+          @layer utilities {
+        .content-auto {
+          content-visibility: auto;
+        }
+        .btn-primary {
+          @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-all duration-200 shadow-sm;
+        }
+        .form-input {
+          @apply w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200;
+        }
+        .form-label {
+          @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="font-inter bg-gray-100 text-gray-700 min-h-screen flex items-center justify-center p-4"
+  >
+    <!-- 登录页面 -->
+    <div class="w-full max-w-md" id="loginPage">
+      <div
+        class="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl"
+      >
+        <div class="p-6 sm:p-8">
+          <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+              <div
+                class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center"
+              >
+                <i class="fas fa-file-alt text-primary text-2xl"> </i>
+              </div>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">周报管理系统</h2>
+            <p class="mt-2 text-gray-500">请登录您的账号</p>
+          </div>
+          <form id="loginForm">
+            <div class="mb-4">
+              <label class="form-label" for="username"> 用户名 </label>
+              <div class="relative">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-user text-gray-400"> </i>
+                </div>
+                <input
+                  class="form-input pl-10"
+                  id="username"
+                  name="username"
+                  placeholder="请输入用户名"
+                  required
+                  type="text"
+                />
+              </div>
+            </div>
+            <div class="mb-6">
+              <div class="flex justify-between items-center mb-1">
+                <label class="form-label" for="password"> 密码 </label>
+                <a
+                  class="text-sm text-primary hover:text-primary/80"
+                  href="javascript:void(0);"
+                >
+                  忘记密码?
+                </a>
+              </div>
+              <div class="relative">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-lock text-gray-400"> </i>
+                </div>
+                <input
+                  class="form-input pl-10"
+                  id="password"
+                  name="password"
+                  placeholder="请输入密码"
+                  required
+                  type="password"
+                />
+                <button
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  id="togglePassword"
+                  type="button"
+                >
+                  <i class="fas fa-eye-slash"> </i>
+                </button>
+              </div>
+            </div>
+            <div class="mb-6">
+              <button class="btn-primary w-full py-2.5" type="submit">
+                <i class="fas fa-sign-in-alt mr-2"> </i>
+                登录
+              </button>
+            </div>
+            <div class="text-center text-sm text-gray-500">
+              <p>
+                还没有账号?
+                <a
+                  class="text-primary hover:text-primary/80 font-medium"
+                  href="javascript:void(0);"
+                >
+                  联系管理员
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+      <p class="mt-6 text-center text-xs text-gray-500">
+        © 2023 周报管理系统 v1.0.0
+      </p>
+    </div>
+    <script>
+      // 页面加载时初始化
+      document.addEventListener('DOMContentLoaded', function () {
+        // 初始化登录表单
+        initLoginForm();
+      });
+
+      // 初始化登录表单
+      function initLoginForm() {
+        var loginForm = document.getElementById('loginForm');
+        var togglePassword = document.getElementById('togglePassword');
+        var passwordInput = document.getElementById('password');
+
+        // 密码显示/隐藏切换
+        togglePassword.addEventListener('click', function () {
+          var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+
+          // 切换图标
+          this.querySelector('i').classList.toggle('fa-eye');
+          this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+
+        // 登录表单提交
+        loginForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var username = document.getElementById('username').value.trim();
+          var password = document.getElementById('password').value.trim();
+
+          // 简单验证
+          if (!username || !password) {
+            alert('请输入用户名和密码');
+            return;
+          }
+
+          // 模拟登录验证 (实际项目中应替换为真实API调用)
+          if (username === 'admin' && password === 'admin') {
+            // 保存登录状态
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('username', username);
+
+            // 跳转到系统首页
+            window.location.href = 'index.html'; // 假设系统首页为index.html
+          } else {
+            alert('用户名或密码错误');
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

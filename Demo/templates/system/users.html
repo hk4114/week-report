@@ -1,0 +1,428 @@
+{% extends "layout.html" %}
+
+{% block title %}用户管理{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">用户管理</h1>
+    <p class="text-gray-500 mt-1">系统用户信息维护，支持用户增加、删除、修改和查询操作</p>
+</div>
+
+<!-- 查询区域 -->
+<div class="card mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+            <label class="form-label">用户工号</label>
+            <input class="form-input" type="text" placeholder="请输入用户工号" />
+        </div>
+        <div>
+            <label class="form-label">用户姓名</label>
+            <input class="form-input" type="text" placeholder="请输入用户姓名" />
+        </div>
+        <div>
+            <label class="form-label">所属部门</label>
+            <select class="form-select">
+                <option value="">请选择部门</option>
+                <option value="tech">技术部</option>
+                <option value="product">产品部</option>
+                <option value="market">市场部</option>
+                <option value="sales">销售部</option>
+                <option value="admin">行政部</option>
+                <option value="finance">财务部</option>
+                <option value="hr">人力资源部</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label">用户状态</label>
+            <select class="form-select">
+                <option value="">全部状态</option>
+                <option value="active">启用</option>
+                <option value="inactive">禁用</option>
+            </select>
+        </div>
+    </div>
+    <div class="flex justify-between mt-4">
+        <button class="btn-primary">
+            <i class="fas fa-plus mr-2"></i>
+            新增用户
+        </button>
+        <div class="flex space-x-3">
+            <button class="btn-outline">
+                <i class="fas fa-sync-alt mr-2"></i>
+                重置
+            </button>
+            <button class="btn-primary">
+                <i class="fas fa-search mr-2"></i>
+                查询
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 用户列表 -->
+<div class="card">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold text-gray-800">用户列表</h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1 text-primary"></i>
+            共查询到 15 条记录
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="table-th">用户工号</th>
+                    <th class="table-th">登录名</th>
+                    <th class="table-th">中文姓名</th>
+                    <th class="table-th">所属部门</th>
+                    <th class="table-th">直属领导</th>
+                    <th class="table-th">用户角色</th>
+                    <th class="table-th">状态</th>
+                    <th class="table-th">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">E001</td>
+                    <td class="table-td">zhangsan</td>
+                    <td class="table-td">张三</td>
+                    <td class="table-td">技术部</td>
+                    <td class="table-td">李四</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary mr-1">项目经理</span>
+                        <span class="badge badge-gray">普通员工</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3">重置密码</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">E002</td>
+                    <td class="table-td">lisi</td>
+                    <td class="table-td">李四</td>
+                    <td class="table-td">技术部</td>
+                    <td class="table-td">王五</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary mr-1">部门经理</span>
+                        <span class="badge badge-warning">HR管理员</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3">重置密码</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">E003</td>
+                    <td class="table-td">wangwu</td>
+                    <td class="table-td">王五</td>
+                    <td class="table-td">产品部</td>
+                    <td class="table-td">赵六</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">普通员工</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3">重置密码</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">E004</td>
+                    <td class="table-td">zhaoliu</td>
+                    <td class="table-td">赵六</td>
+                    <td class="table-td">产品部</td>
+                    <td class="table-td">钱七</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary mr-1">部门经理</span>
+                        <span class="badge badge-gray">普通员工</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3">重置密码</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">E005</td>
+                    <td class="table-td">qianqi</td>
+                    <td class="table-td">钱七</td>
+                    <td class="table-td">市场部</td>
+                    <td class="table-td">孙八</td>
+                    <td class="table-td">
+                        <span class="badge badge-danger">系统管理员</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3">重置密码</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 分页 -->
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-500">显示 1 至 5 条，共 15 条</div>
+        <div class="flex space-x-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">1</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">2</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">3</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 新增/编辑用户模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="userModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800" id="modalTitle">新增用户</h3>
+        </div>
+        <div class="p-6">
+            <form id="userForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">用户工号 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="userCode" placeholder="请输入用户工号" required />
+                    </div>
+                    <div>
+                        <label class="form-label">登录用户名 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="username" placeholder="请输入登录用户名" required />
+                    </div>
+                    <div>
+                        <label class="form-label">中文姓名 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="realName" placeholder="请输入中文姓名" required />
+                    </div>
+                    <div>
+                        <label class="form-label">所属部门 <span class="text-danger">*</span></label>
+                        <select class="form-select" name="department" required>
+                            <option value="">请选择部门</option>
+                            <option value="tech">技术部</option>
+                            <option value="product">产品部</option>
+                            <option value="market">市场部</option>
+                            <option value="sales">销售部</option>
+                            <option value="admin">行政部</option>
+                            <option value="finance">财务部</option>
+                            <option value="hr">人力资源部</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">直属领导</label>
+                        <select class="form-select" name="supervisor">
+                            <option value="">请选择直属领导</option>
+                            <option value="lisi">李四</option>
+                            <option value="wangwu">王五</option>
+                            <option value="zhaoliu">赵六</option>
+                            <option value="qianqi">钱七</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">用户状态</label>
+                        <select class="form-select" name="status">
+                            <option value="active">启用</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="form-label">用户角色</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="admin" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">系统管理员</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="manager" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">部门经理</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="project_manager" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">项目经理</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="employee" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">普通员工</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="hr" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">HR管理员</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2" id="passwordSection">
+                        <label class="form-label">登录密码 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="password" name="password" placeholder="请输入登录密码" />
+                        <div class="text-xs text-gray-500 mt-1">密码长度至少6位，包含字母和数字</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeUserModal()">取消</button>
+            <button class="btn-primary" onclick="saveUser()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 打开新增用户模态框
+function openUserModal(isEdit = false, userData = null) {
+    const modal = document.getElementById('userModal');
+    const title = document.getElementById('modalTitle');
+    const form = document.getElementById('userForm');
+    const passwordSection = document.getElementById('passwordSection');
+    
+    if (isEdit && userData) {
+        title.textContent = '编辑用户';
+        passwordSection.style.display = 'none';
+        // 填充表单数据
+        form.elements.userCode.value = userData.userCode || '';
+        form.elements.username.value = userData.username || '';
+        form.elements.realName.value = userData.realName || '';
+        form.elements.department.value = userData.department || '';
+        form.elements.supervisor.value = userData.supervisor || '';
+        form.elements.status.value = userData.status || 'active';
+    } else {
+        title.textContent = '新增用户';
+        passwordSection.style.display = 'block';
+        form.reset();
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+// 关闭用户模态框
+function closeUserModal() {
+    const modal = document.getElementById('userModal');
+    modal.classList.add('hidden');
+}
+
+// 保存用户
+function saveUser() {
+    const form = document.getElementById('userForm');
+    const formData = new FormData(form);
+    
+    // 验证必填项
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // 这里应该发送AJAX请求保存数据
+    console.log('保存用户数据:', Object.fromEntries(formData));
+    
+    // 模拟保存成功
+    alert('用户保存成功！');
+    closeUserModal();
+    // 刷新页面数据
+    location.reload();
+}
+
+// 重置密码
+function resetPassword(username) {
+    if (confirm(`确定要重置用户 ${username} 的密码吗？`)) {
+        // 这里应该发送AJAX请求重置密码
+        console.log('重置密码:', username);
+        alert('密码重置成功，新密码已发送至用户邮箱！');
+    }
+}
+
+// 删除用户
+function deleteUser(username) {
+    if (confirm(`确定要删除用户 ${username} 吗？此操作不可撤销。`)) {
+        // 这里应该发送AJAX请求删除用户
+        console.log('删除用户:', username);
+        alert('用户删除成功！');
+        // 刷新页面数据
+        location.reload();
+    }
+}
+
+// 页面初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 绑定新增用户按钮事件
+    document.querySelector('.btn-primary').addEventListener('click', function(e) {
+        if (e.target.closest('.btn-primary').textContent.includes('新增用户')) {
+            openUserModal();
+        }
+    });
+    
+    // 绑定编辑按钮事件
+    document.querySelectorAll('.btn-secondary').forEach(button => {
+        button.addEventListener('click', function() {
+            // 模拟用户数据
+            const userData = {
+                userCode: 'E001',
+                username: 'zhangsan',
+                realName: '张三',
+                department: 'tech',
+                supervisor: 'lisi',
+                status: 'active'
+            };
+            openUserModal(true, userData);
+        });
+    });
+    
+    // 绑定重置密码按钮事件
+    document.querySelectorAll('.btn-outline').forEach(button => {
+        if (button.textContent.includes('重置密码')) {
+            button.addEventListener('click', function() {
+                resetPassword('张三');
+            });
+        }
+    });
+    
+    // 绑定删除按钮事件
+    document.querySelectorAll('.text-danger').forEach(button => {
+        if (button.textContent.includes('删除')) {
+            button.addEventListener('click', function() {
+                deleteUser('张三');
+            });
+        }
+    });
+    
+    // 点击模态框背景关闭
+    document.getElementById('userModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeUserModal();
+        }
+    });
+});
+</script>
+{% endblock %}

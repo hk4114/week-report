@@ -1,0 +1,578 @@
+{% extends "layout.html" %}
+
+{% block title %}菜单管理{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">菜单管理</h1>
+    <p class="text-gray-500 mt-1">系统菜单结构维护，支持多级菜单和权限控制</p>
+</div>
+
+<!-- 操作区域 -->
+<div class="card mb-6">
+    <div class="flex justify-between items-center">
+        <div class="flex space-x-3">
+            <button class="btn-primary" onclick="openMenuModal()">
+                <i class="fas fa-plus mr-2"></i>
+                新增菜单
+            </button>
+            <button class="btn-outline" onclick="expandAll()">
+                <i class="fas fa-expand-arrows-alt mr-2"></i>
+                展开全部
+            </button>
+            <button class="btn-outline" onclick="collapseAll()">
+                <i class="fas fa-compress-arrows-alt mr-2"></i>
+                收起全部
+            </button>
+        </div>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1 text-primary"></i>
+            共有 12 个菜单项
+        </div>
+    </div>
+</div>
+
+<!-- 菜单树形列表 -->
+<div class="card">
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="table-th text-left">菜单名称</th>
+                    <th class="table-th">菜单图标</th>
+                    <th class="table-th">菜单链接</th>
+                    <th class="table-th">排序号</th>
+                    <th class="table-th">授权角色</th>
+                    <th class="table-th">状态</th>
+                    <th class="table-th">操作</th>
+                </tr>
+            </thead>
+            <tbody id="menuTreeBody">
+                <!-- 系统首页 -->
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-home text-primary mr-2"></i>
+                            <span class="font-medium">系统首页</span>
+                        </div>
+                    </td>
+                    <td class="table-td text-center">
+                        <i class="fas fa-home text-gray-400"></i>
+                    </td>
+                    <td class="table-td">/dashboard</td>
+                    <td class="table-td text-center">1</td>
+                    <td class="table-td">
+                        <span class="badge badge-gray text-xs mr-1">全部角色</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editMenu('home')">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="addSubMenu('home')">新增子菜单</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- 周报管理 -->
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <button class="w-4 h-4 flex items-center justify-center mr-2 text-gray-400 hover:text-primary" onclick="toggleMenu(this)">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <i class="fas fa-clipboard-list text-primary mr-2"></i>
+                            <span class="font-medium">周报管理</span>
+                        </div>
+                    </td>
+                    <td class="table-td text-center">
+                        <i class="fas fa-clipboard-list text-gray-400"></i>
+                    </td>
+                    <td class="table-td">-</td>
+                    <td class="table-td text-center">2</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary text-xs mr-1">普通员工</span>
+                        <span class="badge badge-warning text-xs">部门经理</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editMenu('reports')">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="addSubMenu('reports')">新增子菜单</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- 待我填报 -->
+                <tr class="border-b border-gray-100 hover:bg-gray-50 submenu">
+                    <td class="table-td">
+                        <div class="flex items-center pl-8">
+                            <i class="fas fa-clipboard-list text-gray-400 mr-2"></i>
+                            <span>待我填报</span>
+                        </div>
+                    </td>
+                    <td class="table-td text-center">
+                        <i class="fas fa-clipboard-list text-gray-400"></i>
+                    </td>
+                    <td class="table-td">/reports/pending</td>
+                    <td class="table-td text-center">1</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary text-xs">普通员工</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editMenu('reports_pending')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteMenu('reports_pending', '待我填报')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- 我填报的周报 -->
+                <tr class="border-b border-gray-100 hover:bg-gray-50 submenu">
+                    <td class="table-td">
+                        <div class="flex items-center pl-8">
+                            <i class="fas fa-check-circle text-gray-400 mr-2"></i>
+                            <span>我填报的周报</span>
+                        </div>
+                    </td>
+                    <td class="table-td text-center">
+                        <i class="fas fa-check-circle text-gray-400"></i>
+                    </td>
+                    <td class="table-td">/reports/my-reports</td>
+                    <td class="table-td text-center">2</td>
+                    <td class="table-td">
+                        <span class="badge badge-primary text-xs">普通员工</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editMenu('reports_my')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteMenu('reports_my', '我填报的周报')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- 待我审核 -->
+                <tr class="border-b border-gray-100 hover:bg-gray-50 submenu">
+                    <td class="table-td">
+                        <div class="flex items-center pl-8">
+                            <i class="fas fa-user-check text-gray-400 mr-2"></i>
+                            <span>待我审核</span>
+                        </div>
+                    </td>
+                    <td class="table-td text-center">
+                        <i class="fas fa-user-check text-gray-400"></i>
+                    </td>
+                    <td class="table-td">/reports/pending-review</td>
+                    <td class="table-td text-center">3</td>
+                    <td class="table-td">
+                        <span class="badge badge-warning text-xs">部门经理</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editMenu('reports_review')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteMenu('reports_review', '待我审核')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- 周报查看 -->
+                <tr class="border-b border-gray-100 hover:bg-gray-50 submenu">
+                    <td class="table-td">
+                        <div class="flex items-center pl-8">
+                            <i class="fas fa-file-alt text-gray-400 mr-2"></i>
+                            <span>周报查看</span>
+                        </div>
+                    </td>
+                    <td class="table-td text-center">
+                        <i class="fas fa-file-alt text-gray-400"></i>
+                    </td>
+                    <td class="table-td">/reports/view</td>
+                    <td class="table-td text-center">4</td>
+                    <td class="table-td">
+                        <span class="badge badge-success text-xs">HR管理员</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editMenu('reports_view')">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteMenu('reports_view', '周报查看')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- 模板管理 -->
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <button class="w-4 h-4 flex items-center justify-center mr-2 text-gray-400 hover:text-primary" onclick="toggleMenu(this)">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <i class="fas fa-th-large text-primary mr-2"></i>
+                            <span class="font-medium">模板管理</span>
+                        </div>
+                    </td>
+                    <td class="table-td text-center">
+                        <i class="fas fa-th-large text-gray-400"></i>
+                    </td>
+                    <td class="table-td">-</td>
+                    <td class="table-td text-center">3</td>
+                    <td class="table-td">
+                        <span class="badge badge-danger text-xs">系统管理员</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editMenu('templates')">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="addSubMenu('templates')">新增子菜单</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- 系统管理 -->
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <button class="w-4 h-4 flex items-center justify-center mr-2 text-gray-400 hover:text-primary" onclick="toggleMenu(this)">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <i class="fas fa-cogs text-primary mr-2"></i>
+                            <span class="font-medium">系统管理</span>
+                        </div>
+                    </td>
+                    <td class="table-td text-center">
+                        <i class="fas fa-cogs text-gray-400"></i>
+                    </td>
+                    <td class="table-td">-</td>
+                    <td class="table-td text-center">4</td>
+                    <td class="table-td">
+                        <span class="badge badge-danger text-xs">系统管理员</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">启用</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="editMenu('system')">编辑</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="addSubMenu('system')">新增子菜单</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 新增/编辑菜单模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="menuModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800" id="menuModalTitle">新增菜单</h3>
+        </div>
+        <div class="p-6">
+            <form id="menuForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">菜单编码 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="menuCode" placeholder="请输入菜单编码" required />
+                    </div>
+                    <div>
+                        <label class="form-label">菜单名称 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="menuName" placeholder="请输入菜单名称" required />
+                    </div>
+                    <div>
+                        <label class="form-label">父级菜单</label>
+                        <select class="form-select" name="parentMenu">
+                            <option value="">无（顶级菜单）</option>
+                            <option value="reports">周报管理</option>
+                            <option value="templates">模板管理</option>
+                            <option value="system">系统管理</option>
+                            <option value="settings">系统设置</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">菜单图标</label>
+                        <div class="flex">
+                            <input class="form-input flex-1" type="text" name="menuIcon" placeholder="FontAwesome图标类名" />
+                            <button type="button" class="ml-2 btn-outline px-3" onclick="showIconPicker()">选择</button>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">如：fas fa-home</div>
+                    </div>
+                    <div>
+                        <label class="form-label">菜单链接</label>
+                        <input class="form-input" type="text" name="menuLink" placeholder="请输入菜单链接地址" />
+                        <div class="text-xs text-gray-500 mt-1">如：/dashboard，父级菜单可留空</div>
+                    </div>
+                    <div>
+                        <label class="form-label">排序号</label>
+                        <input class="form-input" type="number" name="sortOrder" placeholder="请输入排序号" value="1" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="form-label">授权角色 <span class="text-danger">*</span></label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="admin" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">系统管理员</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="manager" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">部门经理</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="project_manager" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">项目经理</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="employee" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">普通员工</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="roles" value="hr" class="rounded border-gray-300 text-primary focus:ring-primary mr-2" />
+                                <span class="text-sm">HR管理员</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="form-label">菜单状态</label>
+                        <select class="form-select" name="status">
+                            <option value="active">启用</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeMenuModal()">取消</button>
+            <button class="btn-primary" onclick="saveMenu()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 图标选择模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="iconPickerModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full mx-4 max-h-[80vh] overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">选择图标</h3>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[60vh]">
+            <div class="grid grid-cols-6 md:grid-cols-8 gap-4" id="iconGrid">
+                <!-- 图标网格将通过JavaScript生成 -->
+            </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeIconPicker()">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 切换菜单展开/收起
+function toggleMenu(button) {
+    const icon = button.querySelector('i');
+    const row = button.closest('tr');
+    const submenus = [];
+    
+    // 找到所有子菜单
+    let nextRow = row.nextElementSibling;
+    while (nextRow && nextRow.classList.contains('submenu')) {
+        submenus.push(nextRow);
+        nextRow = nextRow.nextElementSibling;
+    }
+    
+    // 切换显示状态
+    if (icon.classList.contains('fa-chevron-down')) {
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+        submenus.forEach(submenu => submenu.style.display = 'none');
+    } else {
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+        submenus.forEach(submenu => submenu.style.display = '');
+    }
+}
+
+// 展开全部菜单
+function expandAll() {
+    const toggleButtons = document.querySelectorAll('button[onclick*="toggleMenu"] i');
+    toggleButtons.forEach(icon => {
+        if (icon.classList.contains('fa-chevron-right')) {
+            icon.classList.remove('fa-chevron-right');
+            icon.classList.add('fa-chevron-down');
+        }
+    });
+    
+    const submenus = document.querySelectorAll('.submenu');
+    submenus.forEach(submenu => submenu.style.display = '');
+}
+
+// 收起全部菜单
+function collapseAll() {
+    const toggleButtons = document.querySelectorAll('button[onclick*="toggleMenu"] i');
+    toggleButtons.forEach(icon => {
+        if (icon.classList.contains('fa-chevron-down')) {
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-right');
+        }
+    });
+    
+    const submenus = document.querySelectorAll('.submenu');
+    submenus.forEach(submenu => submenu.style.display = 'none');
+}
+
+// 打开菜单模态框
+function openMenuModal(isEdit = false, menuData = null, parentCode = null) {
+    const modal = document.getElementById('menuModal');
+    const title = document.getElementById('menuModalTitle');
+    const form = document.getElementById('menuForm');
+    
+    if (isEdit && menuData) {
+        title.textContent = '编辑菜单';
+        form.elements.menuCode.value = menuData.code || '';
+        form.elements.menuCode.readOnly = true;
+        form.elements.menuName.value = menuData.name || '';
+        form.elements.parentMenu.value = menuData.parent || '';
+        form.elements.menuIcon.value = menuData.icon || '';
+        form.elements.menuLink.value = menuData.link || '';
+        form.elements.sortOrder.value = menuData.sortOrder || 1;
+        form.elements.status.value = menuData.status || 'active';
+    } else {
+        title.textContent = parentCode ? '新增子菜单' : '新增菜单';
+        form.reset();
+        form.elements.menuCode.readOnly = false;
+        if (parentCode) {
+            form.elements.parentMenu.value = parentCode;
+        }
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+// 关闭菜单模态框
+function closeMenuModal() {
+    document.getElementById('menuModal').classList.add('hidden');
+}
+
+// 保存菜单
+function saveMenu() {
+    const form = document.getElementById('menuForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const formData = new FormData(form);
+    
+    // 检查是否选择了角色
+    const selectedRoles = Array.from(form.querySelectorAll('input[name="roles"]:checked'));
+    if (selectedRoles.length === 0) {
+        alert('请至少选择一个授权角色！');
+        return;
+    }
+    
+    console.log('保存菜单数据:', Object.fromEntries(formData));
+    console.log('选择的角色:', selectedRoles.map(r => r.value));
+    
+    alert('菜单保存成功！');
+    closeMenuModal();
+    location.reload();
+}
+
+// 编辑菜单
+function editMenu(menuCode) {
+    // 模拟菜单数据
+    const menuData = {
+        code: menuCode,
+        name: '系统首页',
+        parent: '',
+        icon: 'fas fa-home',
+        link: '/dashboard',
+        sortOrder: 1,
+        status: 'active'
+    };
+    openMenuModal(true, menuData);
+}
+
+// 新增子菜单
+function addSubMenu(parentCode) {
+    openMenuModal(false, null, parentCode);
+}
+
+// 删除菜单
+function deleteMenu(menuCode, menuName) {
+    if (confirm(`确定要删除菜单 ${menuName} 吗？删除后用户将无法访问该功能。`)) {
+        console.log('删除菜单:', menuCode);
+        alert('菜单删除成功！');
+        location.reload();
+    }
+}
+
+// 显示图标选择器
+function showIconPicker() {
+    const modal = document.getElementById('iconPickerModal');
+    const iconGrid = document.getElementById('iconGrid');
+    
+    // 常用图标列表
+    const commonIcons = [
+        'fa-home', 'fa-user', 'fa-users', 'fa-cog', 'fa-cogs', 'fa-dashboard',
+        'fa-file', 'fa-file-alt', 'fa-folder', 'fa-folder-open', 'fa-edit', 'fa-trash',
+        'fa-plus', 'fa-minus', 'fa-search', 'fa-filter', 'fa-sort', 'fa-list',
+        'fa-th', 'fa-th-large', 'fa-th-list', 'fa-table', 'fa-chart-bar', 'fa-chart-line',
+        'fa-bell', 'fa-envelope', 'fa-calendar', 'fa-clock', 'fa-tag', 'fa-tags',
+        'fa-star', 'fa-heart', 'fa-bookmark', 'fa-flag', 'fa-thumbs-up', 'fa-thumbs-down',
+        'fa-check', 'fa-times', 'fa-exclamation', 'fa-question', 'fa-info', 'fa-warning'
+    ];
+    
+    iconGrid.innerHTML = '';
+    commonIcons.forEach(icon => {
+        const iconButton = document.createElement('button');
+        iconButton.type = 'button';
+        iconButton.className = 'p-3 border border-gray-200 rounded hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 flex items-center justify-center';
+        iconButton.innerHTML = `<i class="fas ${icon}"></i>`;
+        iconButton.onclick = () => selectIcon(`fas ${icon}`);
+        iconGrid.appendChild(iconButton);
+    });
+    
+    modal.classList.remove('hidden');
+}
+
+// 选择图标
+function selectIcon(iconClass) {
+    document.querySelector('input[name="menuIcon"]').value = iconClass;
+    closeIconPicker();
+}
+
+// 关闭图标选择器
+function closeIconPicker() {
+    document.getElementById('iconPickerModal').classList.add('hidden');
+}
+
+// 页面初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 绑定模态框背景点击事件
+    document.getElementById('menuModal').addEventListener('click', function(e) {
+        if (e.target === this) closeMenuModal();
+    });
+    
+    document.getElementById('iconPickerModal').addEventListener('click', function(e) {
+        if (e.target === this) closeIconPicker();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,911 @@
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>周报管理系统</title>
+    <script src="https://res.gemcoder.com/js/reload.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#165DFF',
+              secondary: '#36CFC9',
+              success: '#52C41A',
+              warning: '#FAAD14',
+              danger: '#FF4D4F',
+              info: '#1890FF',
+              light: '#F5F5F5',
+              dark: '#1D2129',
+              'gray-100': '#F2F3F5',
+              'gray-200': '#E5E6EB',
+              'gray-300': '#C9CDD4',
+              'gray-400': '#86909C',
+              'gray-500': '#4E5969',
+              'gray-600': '#272E3B',
+              'gray-700': '#1D2129'
+            },
+            fontFamily: {
+              inter: ['Inter', 'system-ui', 'sans-serif']
+            },
+            boxShadow: {
+              'card': '0 2px 8px rgba(0, 0, 0, 0.08)',
+              'dropdown': '0 4px 16px rgba(0, 0, 0, 0.12)'
+            }
+          }
+        }
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer utilities {
+          .content-auto {
+              content-visibility: auto;
+          }
+          .sidebar-item-active {
+              @apply bg-primary/10 text-primary border-l-4 border-primary;
+          }
+          .sidebar-item {
+              @apply flex items-center px-4 py-3 text-gray-500 hover:bg-gray-100 transition-all duration-200 cursor-pointer;
+          }
+          .btn-primary {
+              @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-all duration-200 shadow-sm;
+          }
+          .btn-secondary {
+              @apply bg-white text-primary border border-primary px-4 py-2 rounded-md hover:bg-primary/5 transition-all duration-200;
+          }
+          .btn-outline {
+              @apply bg-white text-gray-500 border border-gray-200 px-4 py-2 rounded-md hover:bg-gray-50 transition-all duration-200;
+          }
+          .card {
+              @apply bg-white rounded-lg shadow-card p-5 transition-all duration-200 hover:shadow-lg;
+          }
+          .form-input {
+              @apply w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200;
+          }
+          .form-select {
+              @apply w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 appearance-none bg-white;
+          }
+          .form-label {
+              @apply block text-sm font-medium text-gray-700 mb-1;
+          }
+          .badge {
+              @apply px-2 py-1 rounded-full text-xs font-medium;
+          }
+          .badge-primary {
+              @apply bg-primary/10 text-primary;
+          }
+          .badge-success {
+              @apply bg-success/10 text-success;
+          }
+          .badge-warning {
+              @apply bg-warning/10 text-warning;
+          }
+          .badge-danger {
+              @apply bg-danger/10 text-danger;
+          }
+          .badge-gray {
+              @apply bg-gray-100 text-gray-500;
+          }
+          .table-th {
+              @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50;
+          }
+          .table-td {
+              @apply px-4 py-3 whitespace-nowrap text-sm text-gray-700;
+          }
+      }
+    </style>
+  </head>
+  <body
+    class="font-inter bg-gray-100 text-gray-700 min-h-screen flex flex-col overflow-hidden"
+  >
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm z-10 relative">
+      <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <!-- 左侧Logo和标题 -->
+          <div class="flex items-center">
+            <div class="flex-shrink-0 flex items-center">
+              <i class="fas fa-file-alt text-primary text-2xl mr-2"> </i>
+              <span class="text-xl font-semibold text-gray-700">
+                周报管理系统
+              </span>
+            </div>
+          </div>
+          <!-- 右侧用户信息 -->
+          <div class="flex items-center">
+            <button
+              class="p-2 rounded-full text-gray-500 hover:bg-gray-100 mr-4 relative"
+            >
+              <i class="fas fa-bell"> </i>
+              <span
+                class="absolute top-1 right-1 bg-danger w-2 h-2 rounded-full"
+              >
+              </span>
+            </button>
+            <div class="ml-3 relative">
+              <div
+                class="flex items-center cursor-pointer group"
+                id="userMenuButton"
+              >
+                <img
+                  class="h-8 w-8 rounded-full object-cover"
+                  src="https://design.gemcoder.com/staticResource/echoAiSystemImages/18fe4f0759c48e2712356dc844b3b984.png"
+                  alt="用户头像"
+                />
+                <div class="ml-2 hidden md:block">
+                  <div class="text-sm font-medium text-gray-700">张三</div>
+                  <div class="text-xs text-gray-500">项目经理</div>
+                </div>
+                <i
+                  class="fas fa-chevron-down ml-1 text-xs text-gray-400 group-hover:text-primary transition-colors duration-200"
+                >
+                </i>
+              </div>
+              <!-- 用户下拉菜单 -->
+              <div
+                class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-dropdown bg-white ring-1 ring-black ring-opacity-5 z-50"
+                id="userDropdownMenu"
+              >
+                <div class="py-1">
+                  <a
+                    href="javascript:void(0);"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-user mr-2 text-gray-400"> </i>
+                    个人信息
+                  </a>
+                  <a
+                    href="javascript:void(0);"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-cog mr-2 text-gray-400"> </i>
+                    系统设置
+                  </a>
+                  <div class="border-t border-gray-100 my-1"></div>
+                  <a
+                    href="javascript:void(0);"
+                    class="block px-4 py-2 text-sm text-danger hover:bg-gray-100"
+                  >
+                    <i class="fas fa-sign-out-alt mr-2"> </i>
+                    退出登录
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- 主内容区域 -->
+    <div class="flex flex-1 overflow-hidden">
+      <!-- 侧边栏 -->
+      <aside
+        class="bg-white w-64 border-r border-gray-200 flex-shrink-0 hidden lg:block transition-all duration-300 ease-in-out"
+        id="sidebar"
+      >
+        <div class="h-full flex flex-col">
+          <!-- 搜索框 -->
+          <div class="p-4 border-b border-gray-200">
+            <div class="relative">
+              <input
+                type="text"
+                placeholder="搜索菜单..."
+                class="form-input pl-10 pr-4 py-2 text-sm"
+              />
+              <i
+                class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              >
+              </i>
+            </div>
+          </div>
+          <!-- 菜单列表 -->
+          <nav class="flex-1 overflow-y-auto p-2" id="sidebarMenu">
+            <!-- 系统首页 -->
+            <div class="mb-4">
+              <div class="sidebar-item sidebar-item-active">
+                <i class="fas fa-home w-5 text-center mr-3"> </i>
+                <span> 系统首页 </span>
+              </div>
+            </div>
+            <!-- 周报管理 -->
+            <div class="mb-2">
+              <div
+                class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+              >
+                周报管理
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-clipboard-list w-5 text-center mr-3"> </i>
+                <span> 待我填报 </span>
+                <span class="ml-auto badge badge-danger"> 5 </span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-check-circle w-5 text-center mr-3"> </i>
+                <span> 我填报的周报 </span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-user-check w-5 text-center mr-3"> </i>
+                <span> 待我审核 </span>
+                <span class="ml-auto badge badge-warning"> 3 </span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-file-alt w-5 text-center mr-3"> </i>
+                <span> 周报查看 </span>
+              </div>
+            </div>
+            <!-- 模板管理 -->
+            <div class="mb-2">
+              <div
+                class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+              >
+                模板管理
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-th-large w-5 text-center mr-3"> </i>
+                <span> 周报模板列表 </span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-plus-circle w-5 text-center mr-3"> </i>
+                <span> 新增周报模板 </span>
+              </div>
+            </div>
+            <!-- 系统管理 -->
+            <div class="mb-2">
+              <div
+                class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+              >
+                系统管理
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-users w-5 text-center mr-3"> </i>
+                <span> 用户管理 </span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-sitemap w-5 text-center mr-3"> </i>
+                <span> 部门管理 </span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-tags w-5 text-center mr-3"> </i>
+                <span> 数据字典 </span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-id-card-alt w-5 text-center mr-3"> </i>
+                <span> 角色管理 </span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-list w-5 text-center mr-3"> </i>
+                <span> 菜单管理 </span>
+              </div>
+            </div>
+            <!-- 系统设置 -->
+            <div class="mb-2">
+              <div
+                class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+              >
+                系统设置
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-bell w-5 text-center mr-3"> </i>
+                <span> 系统公告 </span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-history w-5 text-center mr-3"> </i>
+                <span> 操作日志 </span>
+              </div>
+            </div>
+          </nav>
+          <!-- 底部 -->
+          <div class="p-4 border-t border-gray-200">
+            <div class="text-center text-xs text-gray-500">
+              <p>周报管理系统 v1.0.0</p>
+              <p class="mt-1">© 2023 公司名称</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <!-- 移动端侧边栏切换按钮 -->
+      <div class="lg:hidden fixed bottom-5 right-5 z-40">
+        <button
+          id="mobileSidebarToggle"
+          class="w-12 h-12 rounded-full bg-primary text-white shadow-lg flex items-center justify-center"
+        >
+          <i class="fas fa-bars"> </i>
+        </button>
+      </div>
+      <!-- 主内容 -->
+      <main class="flex-1 overflow-y-auto bg-gray-50 p-6" id="mainContent">
+        <!-- 页面标题 -->
+        <div class="mb-6">
+          <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">
+            系统首页
+          </h1>
+          <p class="text-gray-500 mt-1">
+            欢迎回来，张三！这里是您的周报管理概览。
+          </p>
+        </div>
+        <!-- 统计卡片区域 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <!-- 待填任务 -->
+          <div class="card">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500">待填任务</p>
+                <h3 class="text-3xl font-bold text-danger mt-1">5</h3>
+                <p class="text-xs text-gray-500 mt-2">
+                  <span class="text-danger font-medium"> +2 </span>
+                  较上周
+                </p>
+              </div>
+              <div
+                class="w-12 h-12 rounded-lg bg-danger/10 flex items-center justify-center text-danger"
+              >
+                <i class="fas fa-clock text-xl"> </i>
+              </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <a
+                href="javascript:void(0);"
+                class="text-sm text-primary hover:text-primary/80 flex items-center"
+              >
+                <span> 查看详情 </span>
+                <i class="fas fa-chevron-right ml-1 text-xs"> </i>
+              </a>
+            </div>
+          </div>
+          <!-- 已填任务 -->
+          <div class="card">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500">已填任务</p>
+                <h3 class="text-3xl font-bold text-success mt-1">12</h3>
+                <p class="text-xs text-gray-500 mt-2">
+                  <span class="text-success font-medium"> +3 </span>
+                  较上周
+                </p>
+              </div>
+              <div
+                class="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center text-success"
+              >
+                <i class="fas fa-check-circle text-xl"> </i>
+              </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <a
+                href="javascript:void(0);"
+                class="text-sm text-primary hover:text-primary/80 flex items-center"
+              >
+                <span> 查看详情 </span>
+                <i class="fas fa-chevron-right ml-1 text-xs"> </i>
+              </a>
+            </div>
+          </div>
+          <!-- 总任务 -->
+          <div class="card">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500">总任务</p>
+                <h3 class="text-3xl font-bold text-primary mt-1">17</h3>
+                <p class="text-xs text-gray-500 mt-2">
+                  <span class="text-gray-500 font-medium"> 17 </span>
+                  本月
+                </p>
+              </div>
+              <div
+                class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary"
+              >
+                <i class="fas fa-clipboard-list text-xl"> </i>
+              </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <a
+                href="javascript:void(0);"
+                class="text-sm text-primary hover:text-primary/80 flex items-center"
+              >
+                <span> 查看详情 </span>
+                <i class="fas fa-chevron-right ml-1 text-xs"> </i>
+              </a>
+            </div>
+          </div>
+          <!-- 完成率 -->
+          <div class="card">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-500">完成率</p>
+                <h3 class="text-3xl font-bold text-warning mt-1">70%</h3>
+                <p class="text-xs text-gray-500 mt-2">
+                  <span class="text-warning font-medium"> +5% </span>
+                  较上周
+                </p>
+              </div>
+              <div
+                class="w-12 h-12 rounded-lg bg-warning/10 flex items-center justify-center text-warning"
+              >
+                <i class="fas fa-chart-pie text-xl"> </i>
+              </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  class="bg-warning h-2 rounded-full"
+                  style="width: 70%"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 图表和列表区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- 周报应填写统计 -->
+          <div class="lg:col-span-2 card">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-lg font-semibold text-gray-800">
+                本周分部门周报应填写统计
+              </h2>
+              <div class="flex space-x-2">
+                <button class="btn-outline text-xs py-1">
+                  <i class="fas fa-download mr-1"> </i>
+                  导出
+                </button>
+                <div class="relative">
+                  <button
+                    class="btn-outline text-xs py-1"
+                    id="chartFilterButton"
+                  >
+                    <i class="fas fa-filter mr-1"> </i>
+                    筛选
+                    <i class="fas fa-chevron-down ml-1 text-xs"> </i>
+                  </button>
+                  <div
+                    class="hidden absolute right-0 mt-1 w-48 rounded-md shadow-dropdown bg-white ring-1 ring-black ring-opacity-5 z-20"
+                    id="chartFilterDropdown"
+                  >
+                    <div class="p-2">
+                      <div class="mb-2">
+                        <label class="form-label text-xs"> 时间范围 </label>
+                        <select class="form-select text-xs">
+                          <option>本周</option>
+                          <option>上周</option>
+                          <option>本月</option>
+                          <option>上月</option>
+                        </select>
+                      </div>
+                      <div class="flex justify-end space-x-2">
+                        <button class="btn-outline text-xs py-1 px-2">
+                          取消
+                        </button>
+                        <button class="btn-primary text-xs py-1 px-2">
+                          确定
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="h-80">
+              <div id="departmentReportChart" class="w-full h-full"></div>
+            </div>
+          </div>
+          <!-- 系统公告 -->
+          <div class="card">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-lg font-semibold text-gray-800">系统公告</h2>
+              <a
+                href="javascript:void(0);"
+                class="text-sm text-primary hover:text-primary/80"
+              >
+                更多
+              </a>
+            </div>
+            <div class="space-y-4">
+              <div class="p-3 border border-primary/20 bg-primary/5 rounded-lg">
+                <div class="flex justify-between items-start">
+                  <h3 class="font-medium text-gray-800">周报系统升级通知</h3>
+                  <span class="badge badge-primary text-xs"> 重要 </span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+                  系统将于本周五晚20:00进行升级维护，预计维护时间2小时，期间系统将无法访问，请提前安排好工作。
+                </p>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-xs text-gray-500"> 2023-06-10 </span>
+                  <a
+                    href="javascript:void(0);"
+                    class="text-xs text-primary hover:text-primary/80"
+                  >
+                    查看详情
+                  </a>
+                </div>
+              </div>
+              <div
+                class="p-3 border border-gray-100 rounded-lg hover:border-primary/20 hover:bg-primary/5 transition-colors duration-200"
+              >
+                <div class="flex justify-between items-start">
+                  <h3 class="font-medium text-gray-800">
+                    关于规范周报填写的通知
+                  </h3>
+                  <span class="badge badge-gray text-xs"> 普通 </span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+                  为提高周报质量，请各位同事在填写周报时，注意详细描述工作内容和成果，避免过于简洁。
+                </p>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-xs text-gray-500"> 2023-06-05 </span>
+                  <a
+                    href="javascript:void(0);"
+                    class="text-xs text-primary hover:text-primary/80"
+                  >
+                    查看详情
+                  </a>
+                </div>
+              </div>
+              <div
+                class="p-3 border border-gray-100 rounded-lg hover:border-primary/20 hover:bg-primary/5 transition-colors duration-200"
+              >
+                <div class="flex justify-between items-start">
+                  <h3 class="font-medium text-gray-800">
+                    新增项目管理周报模板
+                  </h3>
+                  <span class="badge badge-success text-xs"> 新增 </span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+                  系统已新增项目管理周报模板，项目经理角色的同事可以在模板管理中查看和使用。
+                </p>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-xs text-gray-500"> 2023-06-01 </span>
+                  <a
+                    href="javascript:void(0);"
+                    class="text-xs text-primary hover:text-primary/80"
+                  >
+                    查看详情
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 待办事项和最近填报 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <!-- 待办事项 -->
+          <div class="card">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-lg font-semibold text-gray-800">待办事项</h2>
+              <a
+                href="javascript:void(0);"
+                class="text-sm text-primary hover:text-primary/80"
+              >
+                查看全部
+              </a>
+            </div>
+            <div class="space-y-3">
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div class="flex items-center">
+                  <div
+                    class="flex-shrink-0 w-5 h-5 rounded-full border border-danger flex items-center justify-center"
+                  >
+                    <i class="fas fa-exclamation text-danger text-xs"> </i>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-gray-800">
+                      项目进度周报 - 前端团队
+                    </h3>
+                    <p class="text-xs text-gray-500">截止日期: 2023-06-11</p>
+                  </div>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="btn-secondary text-xs py-1 px-3">填报</button>
+                </div>
+              </div>
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div class="flex items-center">
+                  <div
+                    class="flex-shrink-0 w-5 h-5 rounded-full border border-danger flex items-center justify-center"
+                  >
+                    <i class="fas fa-exclamation text-danger text-xs"> </i>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-gray-800">
+                      个人周报 - 项目经理
+                    </h3>
+                    <p class="text-xs text-gray-500">截止日期: 2023-06-11</p>
+                  </div>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="btn-secondary text-xs py-1 px-3">填报</button>
+                </div>
+              </div>
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div class="flex items-center">
+                  <div
+                    class="flex-shrink-0 w-5 h-5 rounded-full border border-warning flex items-center justify-center"
+                  >
+                    <i class="fas fa-clock text-warning text-xs"> </i>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-gray-800">
+                      团队建设周报 - 行政部
+                    </h3>
+                    <p class="text-xs text-gray-500">截止日期: 2023-06-12</p>
+                  </div>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="btn-secondary text-xs py-1 px-3">填报</button>
+                </div>
+              </div>
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div class="flex items-center">
+                  <div
+                    class="flex-shrink-0 w-5 h-5 rounded-full border border-warning flex items-center justify-center"
+                  >
+                    <i class="fas fa-clock text-warning text-xs"> </i>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-gray-800">
+                      研发费用周报 - 财务部
+                    </h3>
+                    <p class="text-xs text-gray-500">截止日期: 2023-06-12</p>
+                  </div>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="btn-secondary text-xs py-1 px-3">填报</button>
+                </div>
+              </div>
+              <div
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div class="flex items-center">
+                  <div
+                    class="flex-shrink-0 w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center"
+                  >
+                    <i class="fas fa-circle text-gray-300 text-[6px]"> </i>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-gray-800">
+                      产品迭代周报 - 产品部
+                    </h3>
+                    <p class="text-xs text-gray-500">截止日期: 2023-06-13</p>
+                  </div>
+                </div>
+                <div class="flex space-x-2">
+                  <button class="btn-secondary text-xs py-1 px-3">填报</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 最近填报 -->
+          <div class="card">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-lg font-semibold text-gray-800">最近填报</h2>
+              <a
+                href="javascript:void(0);"
+                class="text-sm text-primary hover:text-primary/80"
+              >
+                查看全部
+              </a>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr>
+                    <th scope="col" class="table-th">周报名称</th>
+                    <th scope="col" class="table-th">报告周期</th>
+                    <th scope="col" class="table-th">状态</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                  <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                      <div class="flex items-center">
+                        <div
+                          class="flex-shrink-0 w-2 h-2 rounded-full bg-success mr-2 mt-1"
+                        ></div>
+                        <span> 项目进度周报 - 前端团队 </span>
+                      </div>
+                    </td>
+                    <td class="table-td">2023-06-04 ~ 2023-06-10</td>
+                    <td class="table-td">
+                      <span class="badge badge-success"> 已审核 </span>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                      <div class="flex items-center">
+                        <div
+                          class="flex-shrink-0 w-2 h-2 rounded-full bg-success mr-2 mt-1"
+                        ></div>
+                        <span> 个人周报 - 项目经理 </span>
+                      </div>
+                    </td>
+                    <td class="table-td">2023-06-04 ~ 2023-06-10</td>
+                    <td class="table-td">
+                      <span class="badge badge-success"> 已审核 </span>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                      <div class="flex items-center">
+                        <div
+                          class="flex-shrink-0 w-2 h-2 rounded-full bg-primary mr-2 mt-1"
+                        ></div>
+                        <span> 团队建设周报 - 行政部 </span>
+                      </div>
+                    </td>
+                    <td class="table-td">2023-05-28 ~ 2023-06-03</td>
+                    <td class="table-td">
+                      <span class="badge badge-primary"> 已提交 </span>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                      <div class="flex items-center">
+                        <div
+                          class="flex-shrink-0 w-2 h-2 rounded-full bg-success mr-2 mt-1"
+                        ></div>
+                        <span> 研发费用周报 - 财务部 </span>
+                      </div>
+                    </td>
+                    <td class="table-td">2023-05-28 ~ 2023-06-03</td>
+                    <td class="table-td">
+                      <span class="badge badge-success"> 已审核 </span>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                      <div class="flex items-center">
+                        <div
+                          class="flex-shrink-0 w-2 h-2 rounded-full bg-success mr-2 mt-1"
+                        ></div>
+                        <span> 产品迭代周报 - 产品部 </span>
+                      </div>
+                    </td>
+                    <td class="table-td">2023-05-21 ~ 2023-05-27</td>
+                    <td class="table-td">
+                      <span class="badge badge-success"> 已审核 </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <!-- JavaScript -->
+    <script>
+      // 页面加载时初始化
+      document.addEventListener('DOMContentLoaded', function () {
+        // 初始化用户下拉菜单
+        initUserDropdownMenu();
+
+        // 初始化图表筛选下拉菜单
+        initChartFilterDropdown();
+
+        // 初始化部门报告图表
+        initDepartmentReportChart();
+
+        // 初始化侧边栏菜单交互
+        initSidebarMenu();
+      });
+
+      // 用户下拉菜单
+      function initUserDropdownMenu() {
+        var userMenuButton = document.getElementById('userMenuButton');
+        var userDropdownMenu = document.getElementById('userDropdownMenu');
+        userMenuButton.addEventListener('click', function () {
+          userDropdownMenu.classList.toggle('hidden');
+        });
+
+        // 点击其他地方关闭下拉菜单
+        document.addEventListener('click', function (event) {
+          if (!userMenuButton.contains(event.target) && !userDropdownMenu.contains(event.target)) {
+            userDropdownMenu.classList.add('hidden');
+          }
+        });
+      }
+
+      // 图表筛选下拉菜单
+      function initChartFilterDropdown() {
+        var chartFilterButton = document.getElementById('chartFilterButton');
+        var chartFilterDropdown = document.getElementById('chartFilterDropdown');
+        chartFilterButton.addEventListener('click', function () {
+          chartFilterDropdown.classList.toggle('hidden');
+        });
+
+        // 点击其他地方关闭下拉菜单
+        document.addEventListener('click', function (event) {
+          if (!chartFilterButton.contains(event.target) && !chartFilterDropdown.contains(event.target)) {
+            chartFilterDropdown.classList.add('hidden');
+          }
+        });
+      }
+
+      // 初始化部门报告图表
+      function initDepartmentReportChart() {
+        var chartDom = document.getElementById('departmentReportChart');
+        var myChart = echarts.init(chartDom);
+
+        // 图表配置
+        var option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          legend: {
+            data: ['应填写', '已填写'],
+            top: 0
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: ['技术部', '产品部', '市场部', '销售部', '行政部', '财务部', '人力资源部']
+          },
+          yAxis: {
+            type: 'value',
+            minInterval: 1
+          },
+          series: [{
+            name: '应填写',
+            type: 'bar',
+            data: [28, 15, 22, 35, 10, 8, 12],
+            itemStyle: {
+              color: '#165DFF'
+            },
+            barWidth: '30%'
+          }, {
+            name: '已填写',
+            type: 'bar',
+            data: [22, 10, 18, 28, 7, 5, 9],
+            itemStyle: {
+              color: '#52C41A'
+            },
+            barWidth: '30%'
+          }]
+        };
+
+        // 设置图表配置并渲染
+        option && myChart.setOption(option);
+
+        // 响应窗口大小变化
+        window.addEventListener('resize', function () {
+          myChart.resize();
+        });
+      }
+
+      // 侧边栏菜单交互
+      function initSidebarMenu() {
+        var sidebarItems = document.querySelectorAll('.sidebar-item');
+        sidebarItems.forEach(function (item) {
+          item.addEventListener('click', function () {
+            // 移除所有激活状态
+            sidebarItems.forEach(function (i) {
+              return i.classList.remove('sidebar-item-active');
+            });
+
+            // 设置当前项为激活状态
+            item.classList.add('sidebar-item-active');
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

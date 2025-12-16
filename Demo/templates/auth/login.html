@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}周报管理系统 - 登录{% endblock %}
+
+{% block body %}
+<!-- 登录页面 -->
+<div class="w-full max-w-md mx-auto flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl w-full">
+        <div class="p-6 sm:p-8">
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-4">
+                    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                        <i class="fas fa-file-alt text-primary text-2xl"></i>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">周报管理系统</h2>
+                <p class="mt-2 text-gray-500">请登录您的账号</p>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-3 rounded-md {% if category == 'error' %}bg-red-50 text-red-700{% else %}bg-green-50 text-green-700{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" id="loginForm">
+                <div class="mb-4">
+                    <label class="form-label" for="username">用户名</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input class="form-input pl-10" id="username" name="username" placeholder="请输入用户名" required type="text" value="admin">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="form-label" for="password">密码</label>
+                        <a class="text-sm text-primary hover:text-primary/80" href="javascript:void(0);">忘记密码?</a>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input class="form-input pl-10" id="password" name="password" placeholder="请输入密码" required type="password" value="admin">
+                        <button class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600" id="togglePassword" type="button">
+                            <i class="fas fa-eye-slash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <button class="btn-primary w-full py-2.5" type="submit">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        登录
+                    </button>
+                </div>
+                <div class="text-center text-sm text-gray-500">
+                    <p>
+                        还没有账号?
+                        <a class="text-primary hover:text-primary/80 font-medium" href="javascript:void(0);">联系管理员</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <p class="absolute bottom-6 text-center text-xs text-gray-500 w-full">
+        © 2023 周报管理系统 v1.0.0
+    </p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function () {
+    // 初始化登录表单
+    initLoginForm();
+});
+
+// 初始化登录表单
+function initLoginForm() {
+    var togglePassword = document.getElementById('togglePassword');
+    var passwordInput = document.getElementById('password');
+
+    // 密码显示/隐藏切换
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function () {
+            var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // 切换图标
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    }
+}
+
+// 演示用：显示登录信息
+document.addEventListener('DOMContentLoaded', function() {
+    // 添加演示提示
+    var loginForm = document.querySelector('.bg-white');
+    if (loginForm) {
+        var demoInfo = document.createElement('div');
+        demoInfo.className = 'mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-700';
+        demoInfo.innerHTML = '<strong>演示账号：</strong><br>用户名: admin<br>密码: admin';
+        loginForm.querySelector('.p-6').appendChild(demoInfo);
+    }
+});
+</script>
+{% endblock %}

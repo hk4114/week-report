@@ -1,0 +1,536 @@
+{% extends "layout.html" %}
+
+{% block title %}操作日志{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">操作日志</h1>
+    <p class="text-gray-500 mt-1">系统操作日志查看，记录用户重要操作行为</p>
+</div>
+
+<!-- 查询区域 -->
+<div class="card mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+            <label class="form-label">操作用户</label>
+            <input class="form-input" type="text" placeholder="请输入用户姓名或工号" />
+        </div>
+        <div>
+            <label class="form-label">操作模块</label>
+            <select class="form-select">
+                <option value="">全部模块</option>
+                <option value="user">用户管理</option>
+                <option value="report">周报管理</option>
+                <option value="template">模板管理</option>
+                <option value="system">系统管理</option>
+                <option value="auth">用户认证</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label">操作类型</label>
+            <select class="form-select">
+                <option value="">全部类型</option>
+                <option value="create">新增</option>
+                <option value="update">修改</option>
+                <option value="delete">删除</option>
+                <option value="login">登录</option>
+                <option value="logout">登出</option>
+                <option value="view">查看</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label">操作时间</label>
+            <select class="form-select">
+                <option value="">全部时间</option>
+                <option value="today">今天</option>
+                <option value="week">最近一周</option>
+                <option value="month">最近一月</option>
+                <option value="custom">自定义</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- 自定义时间范围 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 hidden" id="customDateRange">
+        <div>
+            <label class="form-label">开始日期</label>
+            <input class="form-input" type="datetime-local" />
+        </div>
+        <div>
+            <label class="form-label">结束日期</label>
+            <input class="form-input" type="datetime-local" />
+        </div>
+    </div>
+    
+    <div class="flex justify-between mt-4">
+        <div class="flex space-x-3">
+            <button class="btn-outline">
+                <i class="fas fa-download mr-2"></i>
+                导出日志
+            </button>
+            <button class="btn-outline">
+                <i class="fas fa-trash mr-2"></i>
+                清理日志
+            </button>
+        </div>
+        <div class="flex space-x-3">
+            <button class="btn-outline">
+                <i class="fas fa-sync-alt mr-2"></i>
+                重置
+            </button>
+            <button class="btn-primary">
+                <i class="fas fa-search mr-2"></i>
+                查询
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 日志列表 -->
+<div class="card">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold text-gray-800">操作日志</h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1 text-primary"></i>
+            共查询到 156 条记录
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="table-th">操作时间</th>
+                    <th class="table-th">操作用户</th>
+                    <th class="table-th">操作模块</th>
+                    <th class="table-th">操作类型</th>
+                    <th class="table-th">操作内容</th>
+                    <th class="table-th">IP地址</th>
+                    <th class="table-th">状态</th>
+                    <th class="table-th">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="text-sm">
+                            <div class="font-medium">2023-06-19</div>
+                            <div class="text-gray-500">14:25:33</div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <img class="h-8 w-8 rounded-full mr-2" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/18fe4f0759c48e2712356dc844b3b984.png" alt="用户头像" />
+                            <div>
+                                <div class="font-medium">张三</div>
+                                <div class="text-sm text-gray-500">zhangsan</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">周报管理</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">新增</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="max-w-md">
+                            <div class="font-medium">提交项目经理周报</div>
+                            <div class="text-sm text-gray-500 truncate">报告周期：2023-06-12至2023-06-18</div>
+                        </div>
+                    </td>
+                    <td class="table-td">192.168.1.100</td>
+                    <td class="table-td">
+                        <span class="badge badge-success">成功</span>
+                    </td>
+                    <td class="table-td">
+                        <button class="btn-secondary text-xs py-1 px-3" onclick="viewLogDetail(1)">详情</button>
+                    </td>
+                </tr>
+                
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="text-sm">
+                            <div class="font-medium">2023-06-19</div>
+                            <div class="text-gray-500">14:20:15</div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <img class="h-8 w-8 rounded-full mr-2" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/18fe4f0759c48e2712356dc844b3b984.png" alt="用户头像" />
+                            <div>
+                                <div class="font-medium">李四</div>
+                                <div class="text-sm text-gray-500">lisi</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-warning">用户管理</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-warning">修改</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="max-w-md">
+                            <div class="font-medium">修改用户信息</div>
+                            <div class="text-sm text-gray-500 truncate">修改用户"王五"的部门信息</div>
+                        </div>
+                    </td>
+                    <td class="table-td">192.168.1.102</td>
+                    <td class="table-td">
+                        <span class="badge badge-success">成功</span>
+                    </td>
+                    <td class="table-td">
+                        <button class="btn-secondary text-xs py-1 px-3" onclick="viewLogDetail(2)">详情</button>
+                    </td>
+                </tr>
+                
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="text-sm">
+                            <div class="font-medium">2023-06-19</div>
+                            <div class="text-gray-500">14:15:42</div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <img class="h-8 w-8 rounded-full mr-2" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/18fe4f0759c48e2712356dc844b3b984.png" alt="用户头像" />
+                            <div>
+                                <div class="font-medium">王五</div>
+                                <div class="text-sm text-gray-500">wangwu</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-info">用户认证</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-info">登录</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="max-w-md">
+                            <div class="font-medium">用户登录系统</div>
+                            <div class="text-sm text-gray-500 truncate">通过用户名密码登录</div>
+                        </div>
+                    </td>
+                    <td class="table-td">192.168.1.105</td>
+                    <td class="table-td">
+                        <span class="badge badge-success">成功</span>
+                    </td>
+                    <td class="table-td">
+                        <button class="btn-secondary text-xs py-1 px-3" onclick="viewLogDetail(3)">详情</button>
+                    </td>
+                </tr>
+                
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="text-sm">
+                            <div class="font-medium">2023-06-19</div>
+                            <div class="text-gray-500">14:10:28</div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <img class="h-8 w-8 rounded-full mr-2" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/18fe4f0759c48e2712356dc844b3b984.png" alt="用户头像" />
+                            <div>
+                                <div class="font-medium">赵六</div>
+                                <div class="text-sm text-gray-500">zhaoliu</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-gray">模板管理</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">新增</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="max-w-md">
+                            <div class="font-medium">创建周报模板</div>
+                            <div class="text-sm text-gray-500 truncate">创建"产品迭代周报"模板</div>
+                        </div>
+                    </td>
+                    <td class="table-td">192.168.1.108</td>
+                    <td class="table-td">
+                        <span class="badge badge-success">成功</span>
+                    </td>
+                    <td class="table-td">
+                        <button class="btn-secondary text-xs py-1 px-3" onclick="viewLogDetail(4)">详情</button>
+                    </td>
+                </tr>
+                
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="text-sm">
+                            <div class="font-medium">2023-06-19</div>
+                            <div class="text-gray-500">14:05:17</div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <img class="h-8 w-8 rounded-full mr-2" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/18fe4f0759c48e2712356dc844b3b984.png" alt="用户头像" />
+                            <div>
+                                <div class="font-medium">系统</div>
+                                <div class="text-sm text-gray-500">system</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-danger">系统管理</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-danger">删除</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="max-w-md">
+                            <div class="font-medium">清理过期日志</div>
+                            <div class="text-sm text-gray-500 truncate">自动清理30天前的操作日志</div>
+                        </div>
+                    </td>
+                    <td class="table-td">127.0.0.1</td>
+                    <td class="table-td">
+                        <span class="badge badge-success">成功</span>
+                    </td>
+                    <td class="table-td">
+                        <button class="btn-secondary text-xs py-1 px-3" onclick="viewLogDetail(5)">详情</button>
+                    </td>
+                </tr>
+                
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="text-sm">
+                            <div class="font-medium">2023-06-19</div>
+                            <div class="text-gray-500">13:58:44</div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <img class="h-8 w-8 rounded-full mr-2" src="https://design.gemcoder.com/staticResource/echoAiSystemImages/18fe4f0759c48e2712356dc844b3b984.png" alt="用户头像" />
+                            <div>
+                                <div class="font-medium">钱七</div>
+                                <div class="text-sm text-gray-500">qianqi</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-info">用户认证</span>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-info">登录</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="max-w-md">
+                            <div class="font-medium">登录失败</div>
+                            <div class="text-sm text-gray-500 truncate">密码错误，连续失败3次</div>
+                        </div>
+                    </td>
+                    <td class="table-td">192.168.1.115</td>
+                    <td class="table-td">
+                        <span class="badge badge-danger">失败</span>
+                    </td>
+                    <td class="table-td">
+                        <button class="btn-secondary text-xs py-1 px-3" onclick="viewLogDetail(6)">详情</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 分页 -->
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-500">显示 1 至 20 条，共 156 条</div>
+        <div class="flex space-x-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">1</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">2</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">3</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 日志详情模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="logDetailModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">操作日志详情</h3>
+        </div>
+        <div class="p-6" id="logDetailContent">
+            <!-- 日志详情内容将通过JavaScript填充 -->
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+            <button class="btn-outline" onclick="closeLogDetailModal()">关闭</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 查看日志详情
+function viewLogDetail(logId) {
+    const modal = document.getElementById('logDetailModal');
+    const content = document.getElementById('logDetailContent');
+    
+    // 模拟日志详情数据
+    const logDetails = {
+        1: {
+            operateTime: '2023-06-19 14:25:33',
+            operator: '张三 (zhangsan)',
+            module: '周报管理',
+            operateType: '新增',
+            operateContent: '提交项目经理周报',
+            ipAddress: '192.168.1.100',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            status: '成功',
+            details: {
+                '报告周期': '2023-06-12 至 2023-06-18',
+                '模板名称': '项目经理周报',
+                '提交状态': '已提交待审核',
+                '数据大小': '2.3KB'
+            },
+            requestData: {
+                'reportId': 'RPT_20230619_001',
+                'templateId': 'TPL_PROJECT_MANAGER',
+                'startDate': '2023-06-12',
+                'endDate': '2023-06-18',
+                'content': '本周完成了项目需求梳理和技术方案设计...'
+            }
+        },
+        2: {
+            operateTime: '2023-06-19 14:20:15',
+            operator: '李四 (lisi)',
+            module: '用户管理',
+            operateType: '修改',
+            operateContent: '修改用户信息',
+            ipAddress: '192.168.1.102',
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            status: '成功',
+            details: {
+                '目标用户': '王五 (wangwu)',
+                '修改字段': '所属部门',
+                '原部门': '技术部',
+                '新部门': '产品部'
+            },
+            requestData: {
+                'userId': 'E003',
+                'department': 'product',
+                'oldDepartment': 'tech'
+            }
+        }
+    };
+    
+    const logDetail = logDetails[logId];
+    if (logDetail) {
+        content.innerHTML = `
+            <div class="space-y-6">
+                <!-- 基本信息 -->
+                <div>
+                    <h4 class="text-md font-medium text-gray-800 mb-3">基本信息</h4>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="flex"><span class="font-medium w-20">操作时间：</span><span>${logDetail.operateTime}</span></div>
+                            <div class="flex"><span class="font-medium w-20">操作用户：</span><span>${logDetail.operator}</span></div>
+                            <div class="flex"><span class="font-medium w-20">操作模块：</span><span>${logDetail.module}</span></div>
+                            <div class="flex"><span class="font-medium w-20">操作类型：</span><span>${logDetail.operateType}</span></div>
+                            <div class="flex"><span class="font-medium w-20">操作内容：</span><span>${logDetail.operateContent}</span></div>
+                            <div class="flex"><span class="font-medium w-20">操作状态：</span><span class="badge ${logDetail.status === '成功' ? 'badge-success' : 'badge-danger'}">${logDetail.status}</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 环境信息 -->
+                <div>
+                    <h4 class="text-md font-medium text-gray-800 mb-3">环境信息</h4>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="space-y-2 text-sm">
+                            <div class="flex"><span class="font-medium w-20">IP地址：</span><span>${logDetail.ipAddress}</span></div>
+                            <div class="flex items-start"><span class="font-medium w-20">浏览器：</span><span class="flex-1">${logDetail.userAgent}</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作详情 -->
+                <div>
+                    <h4 class="text-md font-medium text-gray-800 mb-3">操作详情</h4>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            ${Object.entries(logDetail.details).map(([key, value]) => 
+                                `<div class="flex"><span class="font-medium w-24">${key}：</span><span>${value}</span></div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 请求数据 -->
+                <div>
+                    <h4 class="text-md font-medium text-gray-800 mb-3">请求数据</h4>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <pre class="text-sm text-gray-600 whitespace-pre-wrap overflow-x-auto">${JSON.stringify(logDetail.requestData, null, 2)}</pre>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+// 关闭日志详情模态框
+function closeLogDetailModal() {
+    document.getElementById('logDetailModal').classList.add('hidden');
+}
+
+// 导出日志
+function exportLogs() {
+    // 获取查询条件
+    const filters = {
+        user: document.querySelector('input[placeholder="请输入用户姓名或工号"]').value,
+        module: document.querySelector('select').value,
+        // ... 其他筛选条件
+    };
+    
+    console.log('导出日志，筛选条件:', filters);
+    alert('日志导出功能开发中...');
+}
+
+// 清理日志
+function cleanupLogs() {
+    if (confirm('确定要清理旧日志吗？建议清理30天前的日志数据。')) {
+        console.log('清理日志');
+        alert('日志清理完成！');
+        location.reload();
+    }
+}
+
+// 时间范围选择变化
+document.addEventListener('DOMContentLoaded', function() {
+    const timeRangeSelect = document.querySelector('select[class="form-select"]');
+    const customDateRange = document.getElementById('customDateRange');
+    
+    // 找到时间选择下拉框（第4个select）
+    const selects = document.querySelectorAll('select.form-select');
+    if (selects.length >= 4) {
+        selects[3].addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customDateRange.classList.remove('hidden');
+            } else {
+                customDateRange.classList.add('hidden');
+            }
+        });
+    }
+    
+    // 绑定导出和清理按钮事件
+    document.querySelector('button[onclick*="下载"]')?.addEventListener('click', exportLogs);
+    document.querySelector('button[onclick*="清理"]')?.addEventListener('click', cleanupLogs);
+    
+    // 绑定模态框背景点击事件
+    document.getElementById('logDetailModal').addEventListener('click', function(e) {
+        if (e.target === this) closeLogDetailModal();
+    });
+});
+</script>
+{% endblock %}

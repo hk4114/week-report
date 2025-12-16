@@ -1,0 +1,421 @@
+{% extends "layout.html" %}
+
+{% block title %}周报查看 - 周报管理系统{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">周报查看</h1>
+    <p class="text-gray-500 mt-1">查看所有有权限查看的周报信息</p>
+</div>
+
+<!-- 查询区域 -->
+<div class="card mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+            <label class="form-label">填报人</label>
+            <input class="form-input" placeholder="请输入填报人姓名" type="text" id="searchSubmitter">
+        </div>
+        <div>
+            <label class="form-label">周报名称</label>
+            <input class="form-input" placeholder="请输入周报名称关键词" type="text" id="searchName">
+        </div>
+        <div>
+            <label class="form-label">部门</label>
+            <select class="form-select" id="department">
+                <option value="">全部部门</option>
+                <option value="技术部">技术部</option>
+                <option value="产品部">产品部</option>
+                <option value="市场部">市场部</option>
+                <option value="销售部">销售部</option>
+                <option value="行政部">行政部</option>
+                <option value="财务部">财务部</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label">状态</label>
+            <select class="form-select" id="status">
+                <option value="">全部状态</option>
+                <option value="已提交">已提交</option>
+                <option value="待审核">待审核</option>
+                <option value="已审核">已审核</option>
+            </select>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div>
+            <label class="form-label">时间范围 - 开始</label>
+            <input class="form-input" type="date" id="startDate">
+        </div>
+        <div>
+            <label class="form-label">时间范围 - 结束</label>
+            <input class="form-input" type="date" id="endDate">
+        </div>
+    </div>
+    <div class="flex justify-end mt-4 space-x-3">
+        <button class="btn-outline" onclick="resetSearch()">
+            <i class="fas fa-sync-alt mr-2"></i>
+            重置
+        </button>
+        <button class="btn-primary" onclick="searchReports()">
+            <i class="fas fa-search mr-2"></i>
+            查询
+        </button>
+        <button class="btn-secondary" onclick="exportReports()">
+            <i class="fas fa-download mr-2"></i>
+            导出
+        </button>
+    </div>
+</div>
+
+<!-- 周报列表 -->
+<div class="card">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold text-gray-800">周报查看列表</h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1 text-primary"></i>
+            共查询到 {{ reports|length }} 条记录
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="table-th" scope="col">填报人</th>
+                    <th class="table-th" scope="col">部门</th>
+                    <th class="table-th" scope="col">周报名称</th>
+                    <th class="table-th" scope="col">报告周期</th>
+                    <th class="table-th" scope="col">填报时间</th>
+                    <th class="table-th" scope="col">审核状态</th>
+                    <th class="table-th" scope="col">审核人</th>
+                    <th class="table-th" scope="col">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+                {% for report in reports %}
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                                <span class="text-primary text-sm font-medium">{{ report.submitter[0] }}</span>
+                            </div>
+                            <span class="font-medium text-gray-800">{{ report.submitter }}</span>
+                        </div>
+                    </td>
+                    <td class="table-td">{{ report.department }}</td>
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            {% if report.status == '已审核' %}
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full bg-success mr-2 mt-1"></div>
+                            {% else %}
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full bg-warning mr-2 mt-1"></div>
+                            {% endif %}
+                            <span>{{ report.name }}</span>
+                        </div>
+                    </td>
+                    <td class="table-td">{{ report.start_date }} ~ {{ report.end_date }}</td>
+                    <td class="table-td">{{ report.submit_date }}</td>
+                    <td class="table-td">
+                        {% if report.status == '已审核' %}
+                        <span class="badge badge-success">已审核</span>
+                        {% else %}
+                        <span class="badge badge-warning">待审核</span>
+                        {% endif %}
+                    </td>
+                    <td class="table-td">
+                        {% if report.reviewer %}
+                        <span class="text-gray-700">{{ report.reviewer }}</span>
+                        {% else %}
+                        <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="table-td">
+                        <button class="btn-secondary text-xs py-1 px-3" onclick="viewReport('{{ report.id }}', '{{ report.name }}', '{{ report.submitter }}')">
+                            查看
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-500">显示 1 至 {{ reports|length }} 条，共 {{ reports|length }} 条</div>
+        <div class="flex space-x-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">
+                1
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
+                2
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 查看周报模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" id="viewModal">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col scale-95 opacity-0 transition-all duration-300">
+        <!-- 模态框头部 -->
+        <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 bg-white z-10">
+            <h3 class="text-lg font-semibold text-gray-800" id="viewModalTitle">周报详情</h3>
+            <button class="text-gray-400 hover:text-gray-500" id="closeViewModal">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <!-- 模态框内容 -->
+        <div class="flex-1 overflow-y-auto p-6">
+            <!-- 周报基本信息 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-4 bg-gray-50 rounded-lg">
+                <div>
+                    <label class="text-sm font-medium text-gray-500">填报人</label>
+                    <div class="text-gray-800 font-medium" id="submitterName">张三</div>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">部门</label>
+                    <div class="text-gray-800 font-medium">技术部</div>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">编制时间</label>
+                    <div class="text-gray-800 font-medium">2023-06-11</div>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">报告周期</label>
+                    <div class="text-gray-800 font-medium">2023-06-04 至 2023-06-10</div>
+                </div>
+            </div>
+            
+            <!-- 周报内容展示 -->
+            <div class="space-y-6">
+                <!-- 本周工作总结 -->
+                <div class="border border-gray-200 rounded-lg p-6">
+                    <h4 class="text-base font-medium text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-check-square text-primary mr-2"></i>
+                        本周工作总结
+                    </h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 block mb-2">主要工作内容</label>
+                            <div class="bg-gray-50 p-3 rounded border text-sm text-gray-700">
+                                1. 完成企业官网改版项目的前端开发，包括首页、产品页面和联系我们页面的响应式设计<br>
+                                2. 修复移动端APP中发现的5个关键Bug，提升用户体验<br>
+                                3. 参与后台管理系统的需求评审会议，确定下一阶段开发计划<br>
+                                4. 协助新入职同事进行技术培训和项目对接
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 block mb-2">工作成果</label>
+                            <div class="bg-gray-50 p-3 rounded border text-sm text-gray-700">
+                                1. 企业官网改版项目前端开发完成度达到90%，预计下周可以完成测试<br>
+                                2. 移动端APP性能提升15%，用户反馈良好<br>
+                                3. 完成团队代码规范文档的编写，提高团队开发效率<br>
+                                4. 新同事已能独立完成简单开发任务
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 block mb-2">遇到的问题</label>
+                            <div class="bg-gray-50 p-3 rounded border text-sm text-gray-700">
+                                1. 在官网改版过程中遇到兼容性问题，需要额外时间进行浏览器适配<br>
+                                2. 部分第三方API接口不稳定，影响开发进度<br>
+                                3. 团队成员技术水平差异较大，需要更多时间进行协调
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 下周工作计划 -->
+                <div class="border border-gray-200 rounded-lg p-6">
+                    <h4 class="text-base font-medium text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-calendar-alt text-primary mr-2"></i>
+                        下周工作计划
+                    </h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 block mb-2">计划工作内容</label>
+                            <div class="bg-gray-50 p-3 rounded border text-sm text-gray-700">
+                                1. 完成企业官网改版项目的最终测试和上线部署<br>
+                                2. 开始后台管理系统升级项目的前端架构设计<br>
+                                3. 优化现有项目的性能，提升加载速度<br>
+                                4. 参与公司技术分享会，分享前端开发最佳实践
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 block mb-2">预期目标</label>
+                            <div class="bg-gray-50 p-3 rounded border text-sm text-gray-700">
+                                1. 企业官网成功上线，客户验收通过<br>
+                                2. 后台管理系统技术方案确定，获得团队一致认可<br>
+                                3. 现有项目性能提升20%以上<br>
+                                4. 技术分享获得同事好评，促进团队技术氛围
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 项目进度 -->
+                <div class="border border-gray-200 rounded-lg p-6">
+                    <h4 class="text-base font-medium text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-project-diagram text-primary mr-2"></i>
+                        项目进度
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 block mb-2">项目名称</label>
+                            <div class="bg-gray-50 p-3 rounded border text-sm text-gray-700">企业官网改版项目</div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 block mb-2">是否延期</label>
+                            <div class="bg-gray-50 p-3 rounded border text-sm text-gray-700">否</div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-sm font-medium text-gray-600 block mb-2">当前进度</label>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm text-gray-700 font-medium">90%</span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-primary h-2 rounded-full" style="width: 90%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 审核信息 -->
+            <div class="mt-8 border-t border-gray-200 pt-6" id="reviewInfo">
+                <h4 class="text-base font-medium text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-user-check text-primary mr-2"></i>
+                    审核信息
+                </h4>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">审核人</label>
+                            <div class="text-gray-800 font-medium">王经理</div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">审核时间</label>
+                            <div class="text-gray-800 font-medium">2023-06-12 14:30</div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-600 block mb-2">审核意见</label>
+                        <div class="text-sm text-gray-700 bg-white p-3 rounded border">
+                            本周工作完成质量较好，进度符合预期。建议下周加强与后端团队的协调配合，确保项目按时上线。继续保持良好的工作状态。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框底部 -->
+        <div class="border-t border-gray-200 px-6 py-4 flex justify-end space-x-3 sticky bottom-0 bg-white z-10">
+            <button class="btn-outline" onclick="printReport()">
+                <i class="fas fa-print mr-2"></i>
+                打印
+            </button>
+            <button class="btn-outline" onclick="exportSingleReport()">
+                <i class="fas fa-download mr-2"></i>
+                导出
+            </button>
+            <button class="btn-secondary" id="closeViewModalBtn">关闭</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 搜索功能
+function searchReports() {
+    var searchSubmitter = document.getElementById('searchSubmitter').value;
+    var searchName = document.getElementById('searchName').value;
+    var department = document.getElementById('department').value;
+    var status = document.getElementById('status').value;
+    var startDate = document.getElementById('startDate').value;
+    var endDate = document.getElementById('endDate').value;
+    
+    console.log('搜索条件:', { searchSubmitter, searchName, department, status, startDate, endDate });
+    alert('搜索功能已触发，查看控制台输出');
+}
+
+// 重置搜索
+function resetSearch() {
+    document.getElementById('searchSubmitter').value = '';
+    document.getElementById('searchName').value = '';
+    document.getElementById('department').value = '';
+    document.getElementById('status').value = '';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+}
+
+// 导出周报
+function exportReports() {
+    alert('导出功能已触发，将生成Excel文件');
+}
+
+// 查看周报详情
+function viewReport(reportId, reportName, submitter) {
+    var viewModal = document.getElementById('viewModal');
+    var viewModalTitle = document.getElementById('viewModalTitle');
+    var submitterName = document.getElementById('submitterName');
+    
+    viewModalTitle.textContent = '周报详情 - ' + reportName;
+    submitterName.textContent = submitter;
+    
+    // 显示模态框
+    viewModal.classList.remove('hidden');
+    
+    // 添加显示动画
+    setTimeout(function () {
+        viewModal.querySelector('.max-w-5xl').classList.add('scale-100');
+        viewModal.querySelector('.max-w-5xl').classList.remove('scale-95', 'opacity-0');
+    }, 10);
+}
+
+// 关闭查看模态框
+function closeViewModalFunc() {
+    var viewModal = document.getElementById('viewModal');
+    var modalContent = viewModal.querySelector('.max-w-5xl');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    modalContent.classList.remove('scale-100');
+    setTimeout(function () {
+        viewModal.classList.add('hidden');
+    }, 300);
+}
+
+// 打印周报
+function printReport() {
+    window.print();
+}
+
+// 导出单个周报
+function exportSingleReport() {
+    alert('导出单个周报功能已触发');
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function () {
+    // 初始化查看模态框事件
+    var closeViewModal = document.getElementById('closeViewModal');
+    var closeViewModalBtn = document.getElementById('closeViewModalBtn');
+    
+    // 关闭模态框
+    if (closeViewModal) closeViewModal.addEventListener('click', closeViewModalFunc);
+    if (closeViewModalBtn) closeViewModalBtn.addEventListener('click', closeViewModalFunc);
+    
+    // 点击模态框外部关闭
+    var viewModal = document.getElementById('viewModal');
+    if (viewModal) {
+        viewModal.addEventListener('click', function (event) {
+            if (event.target === viewModal) {
+                closeViewModalFunc();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

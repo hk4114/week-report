@@ -1,0 +1,585 @@
+{% extends "layout.html" %}
+
+{% block title %}数据字典{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">数据字典</h1>
+    <p class="text-gray-500 mt-1">系统数据字典维护，支持二级字典结构管理</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- 左侧字典类型列表 -->
+    <div class="lg:col-span-1">
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-800">字典类型</h2>
+                <button class="btn-primary text-xs py-1 px-3" onclick="openDictTypeModal()">
+                    <i class="fas fa-plus mr-1"></i>
+                    新增
+                </button>
+            </div>
+            
+            <div class="space-y-2" id="dictTypeList">
+                <div class="p-3 rounded-lg bg-primary/10 border-l-4 border-primary cursor-pointer dict-type-item active" 
+                     data-type="project_type" onclick="selectDictType('project_type', '项目类型')">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-medium text-gray-800">项目类型</div>
+                            <div class="text-xs text-gray-500">project_type</div>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <span class="badge badge-primary text-xs">4项</span>
+                            <button class="text-gray-400 hover:text-primary" onclick="editDictType('project_type', event)">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-3 rounded-lg hover:bg-gray-50 cursor-pointer dict-type-item" 
+                     data-type="report_type" onclick="selectDictType('report_type', '周报类型')">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-medium text-gray-800">周报类型</div>
+                            <div class="text-xs text-gray-500">report_type</div>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <span class="badge badge-gray text-xs">3项</span>
+                            <button class="text-gray-400 hover:text-primary" onclick="editDictType('report_type', event)">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-3 rounded-lg hover:bg-gray-50 cursor-pointer dict-type-item" 
+                     data-type="project_status" onclick="selectDictType('project_status', '项目状态')">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-medium text-gray-800">项目状态</div>
+                            <div class="text-xs text-gray-500">project_status</div>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <span class="badge badge-gray text-xs">5项</span>
+                            <button class="text-gray-400 hover:text-primary" onclick="editDictType('project_status', event)">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-3 rounded-lg hover:bg-gray-50 cursor-pointer dict-type-item" 
+                     data-type="user_status" onclick="selectDictType('user_status', '用户状态')">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-medium text-gray-800">用户状态</div>
+                            <div class="text-xs text-gray-500">user_status</div>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <span class="badge badge-gray text-xs">3项</span>
+                            <button class="text-gray-400 hover:text-primary" onclick="editDictType('user_status', event)">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-3 rounded-lg hover:bg-gray-50 cursor-pointer dict-type-item" 
+                     data-type="follow_status" onclick="selectDictType('follow_status', '跟进状态')">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-medium text-gray-800">跟进状态</div>
+                            <div class="text-xs text-gray-500">follow_status</div>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <span class="badge badge-gray text-xs">6项</span>
+                            <button class="text-gray-400 hover:text-primary" onclick="editDictType('follow_status', event)">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 右侧字典项列表 -->
+    <div class="lg:col-span-2">
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800" id="dictItemTitle">项目类型 - 字典项</h2>
+                    <p class="text-sm text-gray-500" id="dictItemDesc">管理项目类型的字典值</p>
+                </div>
+                <button class="btn-primary text-xs py-1 px-3" onclick="openDictItemModal()">
+                    <i class="fas fa-plus mr-1"></i>
+                    新增字典项
+                </button>
+            </div>
+            
+            <!-- 字典项列表 -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="table-th">排序</th>
+                            <th class="table-th">字典编码</th>
+                            <th class="table-th">字典名称</th>
+                            <th class="table-th">字典值</th>
+                            <th class="table-th">状态</th>
+                            <th class="table-th">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100" id="dictItemTableBody">
+                        <!-- 项目类型数据 -->
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="table-td">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-500">1</span>
+                                    <div class="flex flex-col space-y-1">
+                                        <button class="text-gray-400 hover:text-primary" onclick="moveUp(this)">
+                                            <i class="fas fa-chevron-up text-xs"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-primary" onclick="moveDown(this)">
+                                            <i class="fas fa-chevron-down text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="table-td">DEV</td>
+                            <td class="table-td">研发项目</td>
+                            <td class="table-td">development</td>
+                            <td class="table-td">
+                                <span class="badge badge-success">启用</span>
+                            </td>
+                            <td class="table-td">
+                                <div class="flex space-x-2">
+                                    <button class="btn-secondary text-xs py-1 px-3" onclick="editDictItem('DEV')">编辑</button>
+                                    <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDictItem('DEV', '研发项目')">删除</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="table-td">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-500">2</span>
+                                    <div class="flex flex-col space-y-1">
+                                        <button class="text-gray-400 hover:text-primary" onclick="moveUp(this)">
+                                            <i class="fas fa-chevron-up text-xs"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-primary" onclick="moveDown(this)">
+                                            <i class="fas fa-chevron-down text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="table-td">MAINT</td>
+                            <td class="table-td">维护项目</td>
+                            <td class="table-td">maintenance</td>
+                            <td class="table-td">
+                                <span class="badge badge-success">启用</span>
+                            </td>
+                            <td class="table-td">
+                                <div class="flex space-x-2">
+                                    <button class="btn-secondary text-xs py-1 px-3" onclick="editDictItem('MAINT')">编辑</button>
+                                    <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDictItem('MAINT', '维护项目')">删除</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="table-td">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-500">3</span>
+                                    <div class="flex flex-col space-y-1">
+                                        <button class="text-gray-400 hover:text-primary" onclick="moveUp(this)">
+                                            <i class="fas fa-chevron-up text-xs"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-primary" onclick="moveDown(this)">
+                                            <i class="fas fa-chevron-down text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="table-td">TEST</td>
+                            <td class="table-td">测试项目</td>
+                            <td class="table-td">testing</td>
+                            <td class="table-td">
+                                <span class="badge badge-success">启用</span>
+                            </td>
+                            <td class="table-td">
+                                <div class="flex space-x-2">
+                                    <button class="btn-secondary text-xs py-1 px-3" onclick="editDictItem('TEST')">编辑</button>
+                                    <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDictItem('TEST', '测试项目')">删除</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="table-td">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-500">4</span>
+                                    <div class="flex flex-col space-y-1">
+                                        <button class="text-gray-400 hover:text-primary" onclick="moveUp(this)">
+                                            <i class="fas fa-chevron-up text-xs"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-primary" onclick="moveDown(this)">
+                                            <i class="fas fa-chevron-down text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="table-td">OTHER</td>
+                            <td class="table-td">其他项目</td>
+                            <td class="table-td">other</td>
+                            <td class="table-td">
+                                <span class="badge badge-warning">禁用</span>
+                            </td>
+                            <td class="table-td">
+                                <div class="flex space-x-2">
+                                    <button class="btn-secondary text-xs py-1 px-3" onclick="editDictItem('OTHER')">编辑</button>
+                                    <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDictItem('OTHER', '其他项目')">删除</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新增/编辑字典类型模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="dictTypeModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-lg w-full mx-4">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800" id="dictTypeModalTitle">新增字典类型</h3>
+        </div>
+        <div class="p-6">
+            <form id="dictTypeForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="form-label">字典类型编码 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="typeCode" placeholder="请输入字典类型编码" required />
+                        <div class="text-xs text-gray-500 mt-1">建议使用英文小写和下划线，如project_type</div>
+                    </div>
+                    <div>
+                        <label class="form-label">字典类型名称 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="typeName" placeholder="请输入字典类型名称" required />
+                    </div>
+                    <div>
+                        <label class="form-label">类型描述</label>
+                        <textarea class="form-input" name="typeDesc" rows="3" placeholder="请输入字典类型描述"></textarea>
+                    </div>
+                    <div>
+                        <label class="form-label">状态</label>
+                        <select class="form-select" name="status">
+                            <option value="active">启用</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeDictTypeModal()">取消</button>
+            <button class="btn-primary" onclick="saveDictType()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 新增/编辑字典项模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="dictItemModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-lg w-full mx-4">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800" id="dictItemModalTitle">新增字典项</h3>
+        </div>
+        <div class="p-6">
+            <form id="dictItemForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="form-label">字典编码 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="itemCode" placeholder="请输入字典编码" required />
+                    </div>
+                    <div>
+                        <label class="form-label">字典名称 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="itemName" placeholder="请输入字典名称" required />
+                    </div>
+                    <div>
+                        <label class="form-label">字典值 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="itemValue" placeholder="请输入字典值" required />
+                    </div>
+                    <div>
+                        <label class="form-label">排序号</label>
+                        <input class="form-input" type="number" name="sortOrder" placeholder="请输入排序号" value="1" />
+                    </div>
+                    <div>
+                        <label class="form-label">状态</label>
+                        <select class="form-select" name="status">
+                            <option value="active">启用</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeDictItemModal()">取消</button>
+            <button class="btn-primary" onclick="saveDictItem()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentDictType = 'project_type';
+
+// 字典项数据
+const dictItemsData = {
+    'project_type': [
+        {code: 'DEV', name: '研发项目', value: 'development', status: 'active'},
+        {code: 'MAINT', name: '维护项目', value: 'maintenance', status: 'active'},
+        {code: 'TEST', name: '测试项目', value: 'testing', status: 'active'},
+        {code: 'OTHER', name: '其他项目', value: 'other', status: 'inactive'}
+    ],
+    'report_type': [
+        {code: 'PERSONAL', name: '个人周报', value: 'personal', status: 'active'},
+        {code: 'PROJECT', name: '项目周报', value: 'project', status: 'active'},
+        {code: 'DEPT', name: '部门周报', value: 'department', status: 'active'}
+    ],
+    'project_status': [
+        {code: 'PLANNING', name: '规划中', value: 'planning', status: 'active'},
+        {code: 'PROGRESS', name: '进行中', value: 'in_progress', status: 'active'},
+        {code: 'COMPLETED', name: '已完成', value: 'completed', status: 'active'},
+        {code: 'PAUSED', name: '已暂停', value: 'paused', status: 'active'},
+        {code: 'CANCELLED', name: '已取消', value: 'cancelled', status: 'active'}
+    ],
+    'user_status': [
+        {code: 'NORMAL', name: '正常', value: 'normal', status: 'active'},
+        {code: 'DISABLED', name: '禁用', value: 'disabled', status: 'active'},
+        {code: 'RESIGNED', name: '离职', value: 'resigned', status: 'active'}
+    ],
+    'follow_status': [
+        {code: 'INITIAL', name: '初次接触', value: 'initial', status: 'active'},
+        {code: 'INTERESTED', name: '意向确认', value: 'interested', status: 'active'},
+        {code: 'PROPOSAL', name: '方案提交', value: 'proposal', status: 'active'},
+        {code: 'NEGOTIATION', name: '商务谈判', value: 'negotiation', status: 'active'},
+        {code: 'CONTRACT', name: '合同签署', value: 'contract', status: 'active'},
+        {code: 'FAILED', name: '跟进失败', value: 'failed', status: 'active'}
+    ]
+};
+
+// 选择字典类型
+function selectDictType(type, name) {
+    currentDictType = type;
+    
+    // 更新选中状态
+    document.querySelectorAll('.dict-type-item').forEach(item => {
+        item.classList.remove('active', 'bg-primary/10', 'border-l-4', 'border-primary');
+        item.classList.add('hover:bg-gray-50');
+    });
+    
+    const selectedItem = document.querySelector(`[data-type="${type}"]`);
+    selectedItem.classList.add('active', 'bg-primary/10', 'border-l-4', 'border-primary');
+    selectedItem.classList.remove('hover:bg-gray-50');
+    
+    // 更新右侧标题
+    document.getElementById('dictItemTitle').textContent = `${name} - 字典项`;
+    document.getElementById('dictItemDesc').textContent = `管理${name}的字典值`;
+    
+    // 加载字典项数据
+    loadDictItems(type);
+}
+
+// 加载字典项数据
+function loadDictItems(type) {
+    const tbody = document.getElementById('dictItemTableBody');
+    const items = dictItemsData[type] || [];
+    
+    tbody.innerHTML = '';
+    
+    items.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition-colors duration-150';
+        row.innerHTML = `
+            <td class="table-td">
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-500">${index + 1}</span>
+                    <div class="flex flex-col space-y-1">
+                        <button class="text-gray-400 hover:text-primary" onclick="moveUp(this)">
+                            <i class="fas fa-chevron-up text-xs"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-primary" onclick="moveDown(this)">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </td>
+            <td class="table-td">${item.code}</td>
+            <td class="table-td">${item.name}</td>
+            <td class="table-td">${item.value}</td>
+            <td class="table-td">
+                <span class="badge ${item.status === 'active' ? 'badge-success' : 'badge-warning'}">${item.status === 'active' ? '启用' : '禁用'}</span>
+            </td>
+            <td class="table-td">
+                <div class="flex space-x-2">
+                    <button class="btn-secondary text-xs py-1 px-3" onclick="editDictItem('${item.code}')">编辑</button>
+                    <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteDictItem('${item.code}', '${item.name}')">删除</button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 字典类型相关函数
+function openDictTypeModal(isEdit = false, typeData = null) {
+    const modal = document.getElementById('dictTypeModal');
+    const title = document.getElementById('dictTypeModalTitle');
+    const form = document.getElementById('dictTypeForm');
+    
+    if (isEdit && typeData) {
+        title.textContent = '编辑字典类型';
+        form.elements.typeCode.value = typeData.code || '';
+        form.elements.typeCode.readOnly = true;
+        form.elements.typeName.value = typeData.name || '';
+        form.elements.typeDesc.value = typeData.desc || '';
+        form.elements.status.value = typeData.status || 'active';
+    } else {
+        title.textContent = '新增字典类型';
+        form.reset();
+        form.elements.typeCode.readOnly = false;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+function closeDictTypeModal() {
+    document.getElementById('dictTypeModal').classList.add('hidden');
+}
+
+function saveDictType() {
+    const form = document.getElementById('dictTypeForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const formData = new FormData(form);
+    console.log('保存字典类型:', Object.fromEntries(formData));
+    alert('字典类型保存成功！');
+    closeDictTypeModal();
+}
+
+function editDictType(typeCode, event) {
+    event.stopPropagation();
+    // 模拟数据
+    const typeData = {
+        code: typeCode,
+        name: '项目类型',
+        desc: '项目分类管理',
+        status: 'active'
+    };
+    openDictTypeModal(true, typeData);
+}
+
+// 字典项相关函数
+function openDictItemModal(isEdit = false, itemData = null) {
+    const modal = document.getElementById('dictItemModal');
+    const title = document.getElementById('dictItemModalTitle');
+    const form = document.getElementById('dictItemForm');
+    
+    if (isEdit && itemData) {
+        title.textContent = '编辑字典项';
+        form.elements.itemCode.value = itemData.code || '';
+        form.elements.itemCode.readOnly = true;
+        form.elements.itemName.value = itemData.name || '';
+        form.elements.itemValue.value = itemData.value || '';
+        form.elements.sortOrder.value = itemData.sortOrder || 1;
+        form.elements.status.value = itemData.status || 'active';
+    } else {
+        title.textContent = '新增字典项';
+        form.reset();
+        form.elements.itemCode.readOnly = false;
+        form.elements.sortOrder.value = (dictItemsData[currentDictType]?.length || 0) + 1;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+function closeDictItemModal() {
+    document.getElementById('dictItemModal').classList.add('hidden');
+}
+
+function saveDictItem() {
+    const form = document.getElementById('dictItemForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const formData = new FormData(form);
+    console.log('保存字典项:', Object.fromEntries(formData));
+    alert('字典项保存成功！');
+    closeDictItemModal();
+    loadDictItems(currentDictType);
+}
+
+function editDictItem(itemCode) {
+    const items = dictItemsData[currentDictType] || [];
+    const item = items.find(i => i.code === itemCode);
+    if (item) {
+        openDictItemModal(true, item);
+    }
+}
+
+function deleteDictItem(itemCode, itemName) {
+    if (confirm(`确定要删除字典项 ${itemName} 吗？`)) {
+        console.log('删除字典项:', itemCode);
+        alert('字典项删除成功！');
+        loadDictItems(currentDictType);
+    }
+}
+
+// 排序相关函数
+function moveUp(button) {
+    const row = button.closest('tr');
+    const prevRow = row.previousElementSibling;
+    if (prevRow) {
+        row.parentNode.insertBefore(row, prevRow);
+        updateRowNumbers();
+    }
+}
+
+function moveDown(button) {
+    const row = button.closest('tr');
+    const nextRow = row.nextElementSibling;
+    if (nextRow) {
+        row.parentNode.insertBefore(nextRow, row);
+        updateRowNumbers();
+    }
+}
+
+function updateRowNumbers() {
+    const rows = document.querySelectorAll('#dictItemTableBody tr');
+    rows.forEach((row, index) => {
+        const numberSpan = row.querySelector('.text-gray-500');
+        numberSpan.textContent = index + 1;
+    });
+}
+
+// 页面初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 加载默认字典项
+    loadDictItems(currentDictType);
+    
+    // 绑定模态框背景点击事件
+    document.getElementById('dictTypeModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDictTypeModal();
+    });
+    
+    document.getElementById('dictItemModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDictItemModal();
+    });
+});
+</script>
+{% endblock %}

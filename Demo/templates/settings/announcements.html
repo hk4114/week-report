@@ -1,0 +1,545 @@
+{% extends "layout.html" %}
+
+{% block title %}系统公告{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">系统公告</h1>
+    <p class="text-gray-500 mt-1">系统公告信息管理，支持公告发布、编辑和状态管理</p>
+</div>
+
+<!-- 查询区域 -->
+<div class="card mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+            <label class="form-label">公告标题</label>
+            <input class="form-input" type="text" placeholder="请输入公告标题关键词" />
+        </div>
+        <div>
+            <label class="form-label">公告类型</label>
+            <select class="form-select">
+                <option value="">全部类型</option>
+                <option value="important">重要公告</option>
+                <option value="normal">普通公告</option>
+                <option value="feature">新增功能</option>
+                <option value="notice">通知公告</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label">发布日期</label>
+            <input class="form-input" type="date" />
+        </div>
+        <div>
+            <label class="form-label">公告状态</label>
+            <select class="form-select">
+                <option value="">全部状态</option>
+                <option value="published">已发布</option>
+                <option value="draft">草稿</option>
+                <option value="expired">已过期</option>
+            </select>
+        </div>
+    </div>
+    <div class="flex justify-between mt-4">
+        <button class="btn-primary" onclick="openAnnouncementModal()">
+            <i class="fas fa-plus mr-2"></i>
+            新增公告
+        </button>
+        <div class="flex space-x-3">
+            <button class="btn-outline">
+                <i class="fas fa-sync-alt mr-2"></i>
+                重置
+            </button>
+            <button class="btn-primary">
+                <i class="fas fa-search mr-2"></i>
+                查询
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 公告列表 -->
+<div class="card">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold text-gray-800">公告列表</h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1 text-primary"></i>
+            共查询到 8 条记录
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="table-th">公告标题</th>
+                    <th class="table-th">公告类型</th>
+                    <th class="table-th">发布人</th>
+                    <th class="table-th">发布时间</th>
+                    <th class="table-th">有效期至</th>
+                    <th class="table-th">状态</th>
+                    <th class="table-th">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-danger mr-2"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">系统升级维护通知</div>
+                                <div class="text-sm text-gray-500">系统将于本周末进行升级维护，预计需要2小时...</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-danger">重要公告</span>
+                    </td>
+                    <td class="table-td">管理员</td>
+                    <td class="table-td">2023-06-15 10:30</td>
+                    <td class="table-td">2023-06-22</td>
+                    <td class="table-td">
+                        <span class="badge badge-success">已发布</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="viewAnnouncement(1)">查看</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="editAnnouncement(1)">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteAnnouncement(1, '系统升级维护通知')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-star text-warning mr-2"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">新增项目管理周报模板</div>
+                                <div class="text-sm text-gray-500">为了更好地跟踪项目进展，系统新增了项目管理周报模板...</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-success">新增功能</span>
+                    </td>
+                    <td class="table-td">张三</td>
+                    <td class="table-td">2023-06-14 14:20</td>
+                    <td class="table-td">2023-07-14</td>
+                    <td class="table-td">
+                        <span class="badge badge-success">已发布</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="viewAnnouncement(2)">查看</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="editAnnouncement(2)">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteAnnouncement(2, '新增项目管理周报模板')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-info mr-2"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">周报填写规范说明</div>
+                                <div class="text-sm text-gray-500">为了提高周报质量，请大家按照以下规范填写周报...</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-primary">通知公告</span>
+                    </td>
+                    <td class="table-td">李四</td>
+                    <td class="table-td">2023-06-12 09:15</td>
+                    <td class="table-td">2023-06-26</td>
+                    <td class="table-td">
+                        <span class="badge badge-success">已发布</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="viewAnnouncement(3)">查看</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="editAnnouncement(3)">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteAnnouncement(3, '周报填写规范说明')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-gray-400 mr-2"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">端午节放假通知</div>
+                                <div class="text-sm text-gray-500">根据国家法定假日安排，端午节放假时间为...</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-gray">普通公告</span>
+                    </td>
+                    <td class="table-td">人事部</td>
+                    <td class="table-td">2023-06-10 16:45</td>
+                    <td class="table-td">2023-06-15</td>
+                    <td class="table-td">
+                        <span class="badge badge-warning">已过期</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="viewAnnouncement(4)">查看</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="editAnnouncement(4)">编辑</button>
+                            <button class="text-danger hover:bg-danger/10 text-xs py-1 px-3 rounded" onclick="deleteAnnouncement(4, '端午节放假通知')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            <i class="fas fa-edit text-gray-400 mr-2"></i>
+                            <div>
+                                <div class="font-medium text-gray-800">团队建设活动安排</div>
+                                <div class="text-sm text-gray-500">为了加强团队凝聚力，公司计划组织团队建设活动...</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="table-td">
+                        <span class="badge badge-gray">普通公告</span>
+                    </td>
+                    <td class="table-td">行政部</td>
+                    <td class="table-td">2023-06-08 11:20</td>
+                    <td class="table-td">-</td>
+                    <td class="table-td">
+                        <span class="badge badge-gray">草稿</span>
+                    </td>
+                    <td class="table-td">
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary text-xs py-1 px-3" onclick="viewAnnouncement(5)">查看</button>
+                            <button class="btn-outline text-xs py-1 px-3" onclick="editAnnouncement(5)">编辑</button>
+                            <button class="btn-primary text-xs py-1 px-3" onclick="publishAnnouncement(5)">发布</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- 分页 -->
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-500">显示 1 至 5 条，共 8 条</div>
+        <div class="flex space-x-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">1</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">2</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 新增/编辑公告模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="announcementModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800" id="announcementModalTitle">新增公告</h3>
+        </div>
+        <div class="p-6">
+            <form id="announcementForm">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="form-label">公告标题 <span class="text-danger">*</span></label>
+                        <input class="form-input" type="text" name="title" placeholder="请输入公告标题" required />
+                    </div>
+                    <div>
+                        <label class="form-label">公告类型 <span class="text-danger">*</span></label>
+                        <select class="form-select" name="type" required>
+                            <option value="">请选择公告类型</option>
+                            <option value="important">重要公告</option>
+                            <option value="normal">普通公告</option>
+                            <option value="feature">新增功能</option>
+                            <option value="notice">通知公告</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">有效期至</label>
+                        <input class="form-input" type="date" name="expireDate" />
+                        <div class="text-xs text-gray-500 mt-1">留空表示长期有效</div>
+                    </div>
+                    <div>
+                        <label class="form-label">发布状态</label>
+                        <select class="form-select" name="status">
+                            <option value="draft">保存为草稿</option>
+                            <option value="published">立即发布</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">公告摘要</label>
+                    <textarea class="form-input" name="summary" rows="3" placeholder="请输入公告摘要，将在公告列表中显示"></textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">公告内容 <span class="text-danger">*</span></label>
+                    <div class="border border-gray-200 rounded-md">
+                        <!-- 工具栏 -->
+                        <div class="border-b border-gray-200 p-2 bg-gray-50">
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" class="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100" onclick="insertText('bold')">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button type="button" class="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100" onclick="insertText('italic')">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button type="button" class="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100" onclick="insertText('underline')">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                                <div class="border-l border-gray-300 mx-2"></div>
+                                <button type="button" class="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100" onclick="insertText('h1')">H1</button>
+                                <button type="button" class="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100" onclick="insertText('h2')">H2</button>
+                                <button type="button" class="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100" onclick="insertText('h3')">H3</button>
+                                <div class="border-l border-gray-300 mx-2"></div>
+                                <button type="button" class="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100" onclick="insertText('list')">
+                                    <i class="fas fa-list-ul"></i>
+                                </button>
+                                <button type="button" class="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100" onclick="insertText('link')">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 编辑器 -->
+                        <textarea class="w-full p-4 border-none focus:outline-none resize-none" name="content" rows="12" placeholder="请输入公告详细内容..." required></textarea>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">支持Markdown格式</div>
+                </div>
+            </form>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <button class="btn-outline" onclick="closeAnnouncementModal()">取消</button>
+            <button class="btn-outline" onclick="saveAsDraft()">保存草稿</button>
+            <button class="btn-primary" onclick="saveAnnouncement()">保存并发布</button>
+        </div>
+    </div>
+</div>
+
+<!-- 查看公告模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="viewAnnouncementModal">
+    <div class="bg-white rounded-lg shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800" id="viewAnnouncementTitle">公告详情</h3>
+        </div>
+        <div class="p-6" id="viewAnnouncementContent">
+            <!-- 公告内容将通过JavaScript填充 -->
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+            <button class="btn-outline" onclick="closeViewAnnouncementModal()">关闭</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 打开新增公告模态框
+function openAnnouncementModal(isEdit = false, announcementData = null) {
+    const modal = document.getElementById('announcementModal');
+    const title = document.getElementById('announcementModalTitle');
+    const form = document.getElementById('announcementForm');
+    
+    if (isEdit && announcementData) {
+        title.textContent = '编辑公告';
+        form.elements.title.value = announcementData.title || '';
+        form.elements.type.value = announcementData.type || '';
+        form.elements.expireDate.value = announcementData.expireDate || '';
+        form.elements.status.value = announcementData.status || 'draft';
+        form.elements.summary.value = announcementData.summary || '';
+        form.elements.content.value = announcementData.content || '';
+    } else {
+        title.textContent = '新增公告';
+        form.reset();
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+// 关闭公告模态框
+function closeAnnouncementModal() {
+    document.getElementById('announcementModal').classList.add('hidden');
+}
+
+// 保存公告
+function saveAnnouncement() {
+    const form = document.getElementById('announcementForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const formData = new FormData(form);
+    formData.set('status', 'published');
+    
+    console.log('保存并发布公告:', Object.fromEntries(formData));
+    alert('公告发布成功！');
+    closeAnnouncementModal();
+    location.reload();
+}
+
+// 保存为草稿
+function saveAsDraft() {
+    const form = document.getElementById('announcementForm');
+    const formData = new FormData(form);
+    formData.set('status', 'draft');
+    
+    console.log('保存草稿:', Object.fromEntries(formData));
+    alert('草稿保存成功！');
+    closeAnnouncementModal();
+    location.reload();
+}
+
+// 查看公告详情
+function viewAnnouncement(id) {
+    const modal = document.getElementById('viewAnnouncementModal');
+    const title = document.getElementById('viewAnnouncementTitle');
+    const content = document.getElementById('viewAnnouncementContent');
+    
+    // 模拟公告数据
+    const announcements = {
+        1: {
+            title: '系统升级维护通知',
+            type: '重要公告',
+            publisher: '管理员',
+            publishTime: '2023-06-15 10:30',
+            expireDate: '2023-06-22',
+            content: `
+                <div class="prose max-w-none">
+                    <h2>升级内容</h2>
+                    <p>本次系统升级将包含以下内容：</p>
+                    <ul>
+                        <li>优化周报填写流程</li>
+                        <li>新增数据导出功能</li>
+                        <li>修复已知问题</li>
+                        <li>提升系统性能</li>
+                    </ul>
+                    
+                    <h2>维护时间</h2>
+                    <p><strong>开始时间：</strong>2023年6月17日 20:00</p>
+                    <p><strong>结束时间：</strong>2023年6月17日 22:00（预计）</p>
+                    
+                    <h2>影响范围</h2>
+                    <p>维护期间系统将暂停服务，请大家提前做好相关准备工作。</p>
+                    
+                    <h2>注意事项</h2>
+                    <p>请各位用户在维护开始前保存好正在编辑的内容，避免数据丢失。</p>
+                </div>
+            `
+        }
+    };
+    
+    const announcement = announcements[id];
+    if (announcement) {
+        title.textContent = announcement.title;
+        content.innerHTML = `
+            <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div><span class="font-medium">公告类型：</span>${announcement.type}</div>
+                    <div><span class="font-medium">发布人：</span>${announcement.publisher}</div>
+                    <div><span class="font-medium">发布时间：</span>${announcement.publishTime}</div>
+                    <div><span class="font-medium">有效期至：</span>${announcement.expireDate}</div>
+                </div>
+            </div>
+            ${announcement.content}
+        `;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+// 关闭查看公告模态框
+function closeViewAnnouncementModal() {
+    document.getElementById('viewAnnouncementModal').classList.add('hidden');
+}
+
+// 编辑公告
+function editAnnouncement(id) {
+    // 模拟公告数据
+    const announcementData = {
+        title: '系统升级维护通知',
+        type: 'important',
+        expireDate: '2023-06-22',
+        status: 'published',
+        summary: '系统将于本周末进行升级维护，预计需要2小时...',
+        content: '# 系统升级维护通知\n\n## 升级内容\n本次系统升级将包含以下内容：\n- 优化周报填写流程\n- 新增数据导出功能'
+    };
+    
+    openAnnouncementModal(true, announcementData);
+}
+
+// 发布公告
+function publishAnnouncement(id) {
+    if (confirm('确定要发布此公告吗？发布后所有用户都可以看到。')) {
+        console.log('发布公告:', id);
+        alert('公告发布成功！');
+        location.reload();
+    }
+}
+
+// 删除公告
+function deleteAnnouncement(id, title) {
+    if (confirm(`确定要删除公告 "${title}" 吗？此操作不可撤销。`)) {
+        console.log('删除公告:', id);
+        alert('公告删除成功！');
+        location.reload();
+    }
+}
+
+// 插入文本格式
+function insertText(type) {
+    const textarea = document.querySelector('textarea[name="content"]');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    
+    let insertedText = '';
+    switch (type) {
+        case 'bold':
+            insertedText = `**${selectedText || '粗体文本'}**`;
+            break;
+        case 'italic':
+            insertedText = `*${selectedText || '斜体文本'}*`;
+            break;
+        case 'underline':
+            insertedText = `<u>${selectedText || '下划线文本'}</u>`;
+            break;
+        case 'h1':
+            insertedText = `# ${selectedText || '标题1'}`;
+            break;
+        case 'h2':
+            insertedText = `## ${selectedText || '标题2'}`;
+            break;
+        case 'h3':
+            insertedText = `### ${selectedText || '标题3'}`;
+            break;
+        case 'list':
+            insertedText = `- ${selectedText || '列表项'}`;
+            break;
+        case 'link':
+            insertedText = `[${selectedText || '链接文字'}](http://example.com)`;
+            break;
+    }
+    
+    textarea.value = textarea.value.substring(0, start) + insertedText + textarea.value.substring(end);
+    textarea.focus();
+    textarea.setSelectionRange(start + insertedText.length, start + insertedText.length);
+}
+
+// 页面初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 绑定模态框背景点击事件
+    document.getElementById('announcementModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAnnouncementModal();
+    });
+    
+    document.getElementById('viewAnnouncementModal').addEventListener('click', function(e) {
+        if (e.target === this) closeViewAnnouncementModal();
+    });
+});
+</script>
+{% endblock %}

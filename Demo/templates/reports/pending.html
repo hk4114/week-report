@@ -1,0 +1,465 @@
+{% extends "layout.html" %}
+
+{% block title %}待我填报 - 周报管理系统{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">待我填报</h1>
+    <p class="text-gray-500 mt-1">您有{{ reports|length }}份周报需要填报，请在截止日期前完成</p>
+</div>
+
+<!-- 查询区域 -->
+<div class="card mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="form-label">周报名称</label>
+            <input class="form-input" placeholder="请输入周报名称关键词" type="text" id="searchName">
+        </div>
+        <div>
+            <label class="form-label">开始时间</label>
+            <input class="form-input" type="date" id="startDate">
+        </div>
+        <div>
+            <label class="form-label">结束时间</label>
+            <input class="form-input" type="date" id="endDate">
+        </div>
+    </div>
+    <div class="flex justify-end mt-4 space-x-3">
+        <button class="btn-outline" onclick="resetSearch()">
+            <i class="fas fa-sync-alt mr-2"></i>
+            重置
+        </button>
+        <button class="btn-primary" onclick="searchReports()">
+            <i class="fas fa-search mr-2"></i>
+            查询
+        </button>
+    </div>
+</div>
+
+<!-- 待填报列表 -->
+<div class="card">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold text-gray-800">待填报周报列表</h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-info-circle mr-1 text-primary"></i>
+            填报时间：每周六、周日
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="table-th" scope="col">周报名称</th>
+                    <th class="table-th" scope="col">开始时间</th>
+                    <th class="table-th" scope="col">结束时间</th>
+                    <th class="table-th" scope="col">截止日期</th>
+                    <th class="table-th" scope="col">状态</th>
+                    <th class="table-th" scope="col">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100" id="reportTableBody">
+                {% for report in reports %}
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="table-td">
+                        <div class="flex items-center">
+                            {% if report.deadline == '2023-06-18' %}
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full bg-danger mr-2 mt-1"></div>
+                            {% elif report.deadline == '2023-06-19' %}
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full bg-warning mr-2 mt-1"></div>
+                            {% else %}
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full bg-gray-300 mr-2 mt-1"></div>
+                            {% endif %}
+                            <span>{{ report.name }}</span>
+                        </div>
+                    </td>
+                    <td class="table-td">{{ report.start_date }}</td>
+                    <td class="table-td">{{ report.end_date }}</td>
+                    <td class="table-td {% if report.deadline == '2023-06-18' %}text-danger font-medium{% elif report.deadline == '2023-06-19' %}text-warning font-medium{% else %}text-gray-500{% endif %}">{{ report.deadline }}</td>
+                    <td class="table-td">
+                        {% if report.deadline == '2023-06-18' %}
+                        <span class="badge badge-danger">未填报</span>
+                        {% elif report.deadline == '2023-06-19' %}
+                        <span class="badge badge-warning">未填报</span>
+                        {% else %}
+                        <span class="badge badge-gray">未填报</span>
+                        {% endif %}
+                    </td>
+                    <td class="table-td">
+                        <button class="btn-primary text-xs py-1 px-3 填报-btn" data-id="{{ report.id }}" onclick="openReportModal('{{ report.name }}', '{{ report.id }}')">
+                            填报
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- 分页 -->
+    <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-500">显示 1 至 {{ reports|length }} 条，共 {{ reports|length }} 条</div>
+        <div class="flex space-x-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-primary bg-primary text-white">
+                1
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:border-primary hover:text-primary">
+                2
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400" disabled>
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 填报模态框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4" id="reportModal">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col scale-95 opacity-0 transition-all duration-300">
+        <!-- 模态框头部 -->
+        <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 bg-white z-10">
+            <h3 class="text-lg font-semibold text-gray-800" id="modalTitle">周报填报 - 项目进度周报</h3>
+            <button class="text-gray-400 hover:text-gray-500" id="closeModal">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <!-- 模态框内容 -->
+        <div class="flex-1 overflow-y-auto p-6">
+            <!-- 填报标题信息 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="form-label">姓名</label>
+                    <input class="form-input" disabled type="text" value="{{ session.name or '张三' }}">
+                </div>
+                <div>
+                    <label class="form-label">部门</label>
+                    <input class="form-input" disabled type="text" value="{{ session.department or '技术部' }}">
+                </div>
+                <div>
+                    <label class="form-label">编制时间</label>
+                    <input class="form-input" type="date" value="2023-06-18">
+                </div>
+                <div>
+                    <label class="form-label">报告周期</label>
+                    <input class="form-input" disabled type="text" value="2023-06-11 至 2023-06-17">
+                </div>
+            </div>
+            <!-- 填报工具栏 -->
+            <div class="flex justify-between items-center mb-6 p-4 bg-gray-50 rounded-lg">
+                <button class="btn-outline text-sm flex items-center" id="restoreLastWeekBtn">
+                    <i class="fas fa-undo mr-2"></i>
+                    还原上周周报
+                </button>
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-lightbulb mr-1 text-warning"></i>
+                    提示：带 <span class="text-danger">*</span> 的为必填项
+                </div>
+            </div>
+            <!-- 填报正文 -->
+            <div class="space-y-8">
+                <!-- 本周工作总结 -->
+                <div>
+                    <h4 class="text-base font-medium text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-check-square text-primary mr-2"></i>
+                        本周工作总结
+                    </h4>
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-4">
+                        <p class="text-sm text-gray-500 italic">请详细描述本周完成的主要工作内容、成果和遇到的问题</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="form-label">
+                                <span class="text-danger">*</span>
+                                主要工作内容
+                            </label>
+                            <textarea class="form-input h-32" placeholder="请输入本周主要工作内容..."></textarea>
+                        </div>
+                        <div>
+                            <label class="form-label">
+                                <span class="text-danger">*</span>
+                                工作成果
+                            </label>
+                            <textarea class="form-input h-32" placeholder="请输入本周工作成果..."></textarea>
+                        </div>
+                        <div>
+                            <label class="form-label">遇到的问题</label>
+                            <textarea class="form-input h-24" placeholder="请输入本周遇到的问题..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- 下周工作计划 -->
+                <div>
+                    <h4 class="text-base font-medium text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-calendar-alt text-primary mr-2"></i>
+                        下周工作计划
+                    </h4>
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-4">
+                        <p class="text-sm text-gray-500 italic">请详细描述下周的工作计划和预期目标</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="form-label">
+                                <span class="text-danger">*</span>
+                                计划工作内容
+                            </label>
+                            <textarea class="form-input h-32" placeholder="请输入下周计划工作内容..."></textarea>
+                        </div>
+                        <div>
+                            <label class="form-label">
+                                <span class="text-danger">*</span>
+                                预期目标
+                            </label>
+                            <textarea class="form-input h-24" placeholder="请输入下周预期目标..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- 项目进度 -->
+                <div>
+                    <h4 class="text-base font-medium text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-project-diagram text-primary mr-2"></i>
+                        项目进度
+                    </h4>
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-4">
+                        <p class="text-sm text-gray-500 italic">请更新当前负责项目的进度情况</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="form-label">
+                                <span class="text-danger">*</span>
+                                项目名称
+                            </label>
+                            <select class="form-select">
+                                <option>企业官网改版项目</option>
+                                <option>移动端APP开发</option>
+                                <option>后台管理系统升级</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">
+                                <span class="text-danger">*</span>
+                                当前进度
+                            </label>
+                            <div class="flex items-center space-x-4">
+                                <select class="form-select w-1/3" id="progressSelect">
+                                    <option value="0">0%</option>
+                                    <option value="25">25%</option>
+                                    <option value="50">50%</option>
+                                    <option value="75">75%</option>
+                                    <option value="100" selected>100%</option>
+                                </select>
+                                <div class="w-2/3 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-primary h-2 rounded-full" id="progressBar" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">是否延期</label>
+                            <div class="flex items-center space-x-4">
+                                <label class="inline-flex items-center">
+                                    <input checked class="text-primary focus:ring-primary" name="delay" type="radio" value="no">
+                                    <span class="ml-2 text-sm text-gray-700">否</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input class="text-primary focus:ring-primary" name="delay" type="radio" value="yes">
+                                    <span class="ml-2 text-sm text-gray-700">是</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">延期原因（如选择是，请填写）</label>
+                            <textarea class="form-input h-24 opacity-50" disabled placeholder="请输入延期原因..." id="delayReason"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- 附件上传 -->
+                <div>
+                    <h4 class="text-base font-medium text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-paperclip text-primary mr-2"></i>
+                        附件上传
+                    </h4>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors duration-200 bg-gray-50">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-sm text-gray-500 mb-4">拖放文件至此处或点击上传</p>
+                        <button class="btn-secondary text-sm">选择文件</button>
+                        <p class="text-xs text-gray-400 mt-2">支持格式：doc, docx, pdf, xlsx, pptx, zip，单个文件不超过10MB</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框底部 -->
+        <div class="border-t border-gray-200 px-6 py-4 flex justify-end space-x-3 sticky bottom-0 bg-white z-10">
+            <button class="btn-outline" id="saveDraftBtn">
+                <i class="fas fa-save mr-2"></i>
+                暂存
+            </button>
+            <button class="btn-secondary" id="cancelBtn">取消</button>
+            <button class="btn-primary" id="submitBtn">
+                <i class="fas fa-paper-plane mr-2"></i>
+                提交
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 搜索功能
+function searchReports() {
+    var searchName = document.getElementById('searchName').value;
+    var startDate = document.getElementById('startDate').value;
+    var endDate = document.getElementById('endDate').value;
+    
+    console.log('搜索条件:', { searchName, startDate, endDate });
+    alert('搜索功能已触发，查看控制台输出');
+}
+
+// 重置搜索
+function resetSearch() {
+    document.getElementById('searchName').value = '';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+}
+
+// 打开填报模态框
+function openReportModal(reportName, reportId) {
+    var reportModal = document.getElementById('reportModal');
+    var modalTitle = document.getElementById('modalTitle');
+    
+    modalTitle.textContent = '周报填报 - ' + reportName;
+    
+    // 显示模态框
+    reportModal.classList.remove('hidden');
+    
+    // 添加显示动画
+    setTimeout(function () {
+        reportModal.querySelector('.max-w-4xl').classList.add('scale-100');
+        reportModal.querySelector('.max-w-4xl').classList.remove('scale-95', 'opacity-0');
+    }, 10);
+    
+    // 清空表单
+    clearReportForm();
+}
+
+// 关闭模态框
+function closeModalFunc() {
+    var reportModal = document.getElementById('reportModal');
+    var modalContent = reportModal.querySelector('.max-w-4xl');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    modalContent.classList.remove('scale-100');
+    setTimeout(function () {
+        reportModal.classList.add('hidden');
+    }, 300);
+}
+
+// 清空表单
+function clearReportForm() {
+    var textareas = document.querySelectorAll('#reportModal textarea');
+    textareas.forEach(function(textarea) {
+        textarea.value = '';
+    });
+}
+
+// 验证必填字段
+function validateRequiredFields() {
+    var requiredFields = document.querySelectorAll('#reportModal textarea');
+    var isValid = true;
+    
+    requiredFields.forEach(function (field) {
+        var label = field.previousElementSibling;
+        if (label && label.textContent.includes('*')) {
+            if (!field.value.trim()) {
+                field.classList.add('border-danger');
+                isValid = false;
+            } else {
+                field.classList.remove('border-danger');
+            }
+        }
+    });
+    
+    if (!isValid) {
+        alert('请填写所有必填字段！');
+    }
+    return isValid;
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function () {
+    // 初始化模态框事件
+    var closeModal = document.getElementById('closeModal');
+    var cancelBtn = document.getElementById('cancelBtn');
+    var saveDraftBtn = document.getElementById('saveDraftBtn');
+    var submitBtn = document.getElementById('submitBtn');
+    var restoreLastWeekBtn = document.getElementById('restoreLastWeekBtn');
+    
+    // 关闭模态框
+    if (closeModal) closeModal.addEventListener('click', closeModalFunc);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModalFunc);
+    
+    // 点击模态框外部关闭
+    var reportModal = document.getElementById('reportModal');
+    if (reportModal) {
+        reportModal.addEventListener('click', function (event) {
+            if (event.target === reportModal) {
+                closeModalFunc();
+            }
+        });
+    }
+    
+    // 暂存按钮
+    if (saveDraftBtn) {
+        saveDraftBtn.addEventListener('click', function () {
+            alert('周报已暂存！');
+        });
+    }
+    
+    // 提交按钮
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function () {
+            if (validateRequiredFields()) {
+                if (confirm('确定要提交周报吗？提交后将无法修改。')) {
+                    alert('周报提交成功！');
+                    closeModalFunc();
+                }
+            }
+        });
+    }
+    
+    // 还原上周周报按钮
+    if (restoreLastWeekBtn) {
+        restoreLastWeekBtn.addEventListener('click', function () {
+            if (confirm('确定要还原上周周报内容吗？当前内容将被覆盖。')) {
+                alert('已成功加载上周周报内容！');
+            }
+        });
+    }
+    
+    // 进度条更新
+    var progressSelect = document.getElementById('progressSelect');
+    var progressBar = document.getElementById('progressBar');
+    if (progressSelect && progressBar) {
+        progressSelect.addEventListener('change', function() {
+            progressBar.style.width = this.value + '%';
+        });
+    }
+    
+    // 延期原因输入框事件
+    var delayRadios = document.querySelectorAll('input[name="delay"]');
+    var delayReasonTextarea = document.getElementById('delayReason');
+    delayRadios.forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            if (this.value === 'yes') {
+                delayReasonTextarea.disabled = false;
+                delayReasonTextarea.classList.remove('opacity-50');
+            } else {
+                delayReasonTextarea.disabled = true;
+                delayReasonTextarea.classList.add('opacity-50');
+                delayReasonTextarea.value = '';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

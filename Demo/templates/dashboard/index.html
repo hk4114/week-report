@@ -1,0 +1,402 @@
+{% extends "layout.html" %}
+
+{% block title %}系统首页 - 周报管理系统{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="mb-6">
+    <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800">系统首页</h1>
+    <p class="text-gray-500 mt-1">欢迎回来，{{ session.name or '张三' }}！这里是您的周报管理概览。</p>
+</div>
+
+<!-- 统计卡片区域 -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <!-- 待填任务 -->
+    <div class="card">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">待填任务</p>
+                <h3 class="text-3xl font-bold text-danger mt-1">{{ stats.pending_reports }}</h3>
+                <p class="text-xs text-gray-500 mt-2">
+                    <span class="text-danger font-medium">+2</span>
+                    较上周
+                </p>
+            </div>
+            <div class="w-12 h-12 rounded-lg bg-danger/10 flex items-center justify-center text-danger">
+                <i class="fas fa-clock text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100">
+            <a href="{{ url_for('pending_reports') }}" class="text-sm text-primary hover:text-primary/80 flex items-center">
+                <span>查看详情</span>
+                <i class="fas fa-chevron-right ml-1 text-xs"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 已填任务 -->
+    <div class="card">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">已填任务</p>
+                <h3 class="text-3xl font-bold text-success mt-1">{{ stats.completed_reports }}</h3>
+                <p class="text-xs text-gray-500 mt-2">
+                    <span class="text-success font-medium">+3</span>
+                    较上周
+                </p>
+            </div>
+            <div class="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center text-success">
+                <i class="fas fa-check-circle text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100">
+            <a href="{{ url_for('my_reports') }}" class="text-sm text-primary hover:text-primary/80 flex items-center">
+                <span>查看详情</span>
+                <i class="fas fa-chevron-right ml-1 text-xs"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 总任务 -->
+    <div class="card">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">总任务</p>
+                <h3 class="text-3xl font-bold text-primary mt-1">{{ stats.total_reports }}</h3>
+                <p class="text-xs text-gray-500 mt-2">
+                    <span class="text-gray-500 font-medium">{{ stats.total_reports }}</span>
+                    本月
+                </p>
+            </div>
+            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <i class="fas fa-clipboard-list text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100">
+            <a href="{{ url_for('view_reports') }}" class="text-sm text-primary hover:text-primary/80 flex items-center">
+                <span>查看详情</span>
+                <i class="fas fa-chevron-right ml-1 text-xs"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 完成率 -->
+    <div class="card">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">完成率</p>
+                <h3 class="text-3xl font-bold text-warning mt-1">{{ stats.completion_rate }}%</h3>
+                <p class="text-xs text-gray-500 mt-2">
+                    <span class="text-warning font-medium">+5%</span>
+                    较上周
+                </p>
+            </div>
+            <div class="w-12 h-12 rounded-lg bg-warning/10 flex items-center justify-center text-warning">
+                <i class="fas fa-chart-pie text-xl"></i>
+            </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-warning h-2 rounded-full" style="width: {{ stats.completion_rate }}%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 图表和列表区域 -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- 周报应填写统计 -->
+    <div class="lg:col-span-2 card">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-semibold text-gray-800">本周分部门周报应填写统计</h2>
+            <div class="flex space-x-2">
+                <button class="btn-outline text-xs py-1">
+                    <i class="fas fa-download mr-1"></i>
+                    导出
+                </button>
+                <div class="relative">
+                    <button class="btn-outline text-xs py-1" id="chartFilterButton">
+                        <i class="fas fa-filter mr-1"></i>
+                        筛选
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+                    <div class="hidden absolute right-0 mt-1 w-48 rounded-md shadow-dropdown bg-white ring-1 ring-black ring-opacity-5 z-20" id="chartFilterDropdown">
+                        <div class="p-2">
+                            <div class="mb-2">
+                                <label class="form-label text-xs">时间范围</label>
+                                <select class="form-select text-xs">
+                                    <option>本周</option>
+                                    <option>上周</option>
+                                    <option>本月</option>
+                                    <option>上月</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-end space-x-2">
+                                <button class="btn-outline text-xs py-1 px-2">取消</button>
+                                <button class="btn-primary text-xs py-1 px-2">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="h-80">
+            <div id="departmentReportChart" class="w-full h-full"></div>
+        </div>
+    </div>
+    
+    <!-- 系统公告 -->
+    <div class="card">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">系统公告</h2>
+            <a href="{{ url_for('settings_announcements') }}" class="text-sm text-primary hover:text-primary/80">更多</a>
+        </div>
+        <div class="space-y-4">
+            <div class="p-3 border border-primary/20 bg-primary/5 rounded-lg">
+                <div class="flex justify-between items-start">
+                    <h3 class="font-medium text-gray-800">周报系统升级通知</h3>
+                    <span class="badge badge-primary text-xs">重要</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+                    系统将于本周五晚20:00进行升级维护，预计维护时间2小时，期间系统将无法访问，请提前安排好工作。
+                </p>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-xs text-gray-500">2023-06-10</span>
+                    <a href="javascript:void(0);" class="text-xs text-primary hover:text-primary/80">查看详情</a>
+                </div>
+            </div>
+            <div class="p-3 border border-gray-100 rounded-lg hover:border-primary/20 hover:bg-primary/5 transition-colors duration-200">
+                <div class="flex justify-between items-start">
+                    <h3 class="font-medium text-gray-800">关于规范周报填写的通知</h3>
+                    <span class="badge badge-gray text-xs">普通</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+                    为提高周报质量，请各位同事在填写周报时，注意详细描述工作内容和成果，避免过于简洁。
+                </p>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-xs text-gray-500">2023-06-05</span>
+                    <a href="javascript:void(0);" class="text-xs text-primary hover:text-primary/80">查看详情</a>
+                </div>
+            </div>
+            <div class="p-3 border border-gray-100 rounded-lg hover:border-primary/20 hover:bg-primary/5 transition-colors duration-200">
+                <div class="flex justify-between items-start">
+                    <h3 class="font-medium text-gray-800">新增项目管理周报模板</h3>
+                    <span class="badge badge-success text-xs">新增</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+                    系统已新增项目管理周报模板，项目经理角色的同事可以在模板管理中查看和使用。
+                </p>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-xs text-gray-500">2023-06-01</span>
+                    <a href="javascript:void(0);" class="text-xs text-primary hover:text-primary/80">查看详情</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 待办事项和最近填报 -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    <!-- 待办事项 -->
+    <div class="card">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">待办事项</h2>
+            <a href="{{ url_for('pending_reports') }}" class="text-sm text-primary hover:text-primary/80">查看全部</a>
+        </div>
+        <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-5 h-5 rounded-full border border-danger flex items-center justify-center">
+                        <i class="fas fa-exclamation text-danger text-xs"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-gray-800">项目进度周报 - 前端团队</h3>
+                        <p class="text-xs text-gray-500">截止日期: 2023-06-11</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="btn-secondary text-xs py-1 px-3">填报</button>
+                </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-5 h-5 rounded-full border border-danger flex items-center justify-center">
+                        <i class="fas fa-exclamation text-danger text-xs"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-gray-800">个人周报 - 项目经理</h3>
+                        <p class="text-xs text-gray-500">截止日期: 2023-06-11</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="btn-secondary text-xs py-1 px-3">填报</button>
+                </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-5 h-5 rounded-full border border-warning flex items-center justify-center">
+                        <i class="fas fa-clock text-warning text-xs"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-gray-800">团队建设周报 - 行政部</h3>
+                        <p class="text-xs text-gray-500">截止日期: 2023-06-12</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="btn-secondary text-xs py-1 px-3">填报</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 最近填报 -->
+    <div class="card">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">最近填报</h2>
+            <a href="{{ url_for('my_reports') }}" class="text-sm text-primary hover:text-primary/80">查看全部</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th scope="col" class="table-th">周报名称</th>
+                        <th scope="col" class="table-th">报告周期</th>
+                        <th scope="col" class="table-th">状态</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="table-td">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-2 h-2 rounded-full bg-success mr-2 mt-1"></div>
+                                <span>项目进度周报 - 前端团队</span>
+                            </div>
+                        </td>
+                        <td class="table-td">2023-06-04 ~ 2023-06-10</td>
+                        <td class="table-td">
+                            <span class="badge badge-success">已审核</span>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="table-td">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-2 h-2 rounded-full bg-success mr-2 mt-1"></div>
+                                <span>个人周报 - 项目经理</span>
+                            </div>
+                        </td>
+                        <td class="table-td">2023-06-04 ~ 2023-06-10</td>
+                        <td class="table-td">
+                            <span class="badge badge-success">已审核</span>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="table-td">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 w-2 h-2 rounded-full bg-primary mr-2 mt-1"></div>
+                                <span>团队建设周报 - 行政部</span>
+                            </div>
+                        </td>
+                        <td class="table-td">2023-05-28 ~ 2023-06-03</td>
+                        <td class="table-td">
+                            <span class="badge badge-primary">已提交</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 初始化图表筛选下拉菜单
+function initChartFilterDropdown() {
+    var chartFilterButton = document.getElementById('chartFilterButton');
+    var chartFilterDropdown = document.getElementById('chartFilterDropdown');
+    
+    if (chartFilterButton && chartFilterDropdown) {
+        chartFilterButton.addEventListener('click', function () {
+            chartFilterDropdown.classList.toggle('hidden');
+        });
+
+        // 点击其他地方关闭下拉菜单
+        document.addEventListener('click', function (event) {
+            if (!chartFilterButton.contains(event.target) && !chartFilterDropdown.contains(event.target)) {
+                chartFilterDropdown.classList.add('hidden');
+            }
+        });
+    }
+}
+
+// 初始化部门报告图表
+function initDepartmentReportChart() {
+    var chartDom = document.getElementById('departmentReportChart');
+    if (!chartDom) return;
+    
+    var myChart = echarts.init(chartDom);
+
+    // 图表配置
+    var option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: ['应填写', '已填写'],
+            top: 0
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: {{ department_stats.departments | tojson }}
+        },
+        yAxis: {
+            type: 'value',
+            minInterval: 1
+        },
+        series: [{
+            name: '应填写',
+            type: 'bar',
+            data: {{ department_stats.should_fill | tojson }},
+            itemStyle: {
+                color: '#165DFF'
+            },
+            barWidth: '30%'
+        }, {
+            name: '已填写',
+            type: 'bar',
+            data: {{ department_stats.filled | tojson }},
+            itemStyle: {
+                color: '#52C41A'
+            },
+            barWidth: '30%'
+        }]
+    };
+
+    // 设置图表配置并渲染
+    option && myChart.setOption(option);
+
+    // 响应窗口大小变化
+    window.addEventListener('resize', function () {
+        myChart.resize();
+    });
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function () {
+    // 初始化图表筛选下拉菜单
+    initChartFilterDropdown();
+    
+    // 初始化部门报告图表
+    initDepartmentReportChart();
+});
+</script>
+{% endblock %}
