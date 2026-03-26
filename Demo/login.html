@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>周报管理系统 Demo - 登录</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <div class="login-page">
+      <div class="login-layout">
+        <section class="login-panel">
+          <span class="login-eyebrow">Demo 原型系统</span>
+          <h1 class="login-title">周报管理系统 V2.0</h1>
+          <p class="login-desc">
+            本原型依据 `Requirement/周报管理系统需求文档V2.0.md` 与 `Demo-Ref`
+            参考页实现，本轮已完成登录能力，以及模板管理、基础配置和个人信息等可交互原型。
+          </p>
+          <div class="demo-account-list" id="demoAccountList"></div>
+        </section>
+        <section class="login-card">
+          <div class="split" style="margin-bottom: 18px;">
+            <div>
+              <h2 style="margin: 0 0 8px; font-size: 26px;">登录系统</h2>
+              <div class="text-muted compact">工号即登录账号，密码为预置演示密码</div>
+            </div>
+            <span class="tag tag-primary">静态可交互 Demo</span>
+          </div>
+          <form class="login-form" id="loginForm">
+            <div class="field">
+              <label for="employeeNo">工号</label>
+              <input id="employeeNo" name="employeeNo" type="text" placeholder="例如 E1001" autocomplete="username" />
+            </div>
+            <div class="field">
+              <label for="password">密码</label>
+              <input id="password" name="password" type="password" placeholder="请输入密码" autocomplete="current-password" />
+            </div>
+            <div class="button-row">
+              <button class="btn btn-primary" type="submit">登录</button>
+              <button class="btn btn-light" id="resetDemoBtn" type="button">重置演示数据</button>
+            </div>
+            <div class="notice-box compact">
+              推荐先用 `ADMIN001 / admin123` 进入模板管理和基础配置，普通账号当前默认进入个人信息页。
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+    <script src="./assets/mock-data.js"></script>
+    <script src="./assets/core.js"></script>
+    <script src="./assets/login.js"></script>
+  </body>
+</html>
